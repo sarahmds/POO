@@ -7,7 +7,7 @@ class Pagamento(enum.Enum):
     Pago = 3
 
 class Boleto:
-    def __init__(self, cod: str, emissao: datetime.datetime, venc: datetime.datetime, valor: float):
+    def _init__(self, cod: str, emissao: datetime.datetime, venc: datetime.datetime, valor: float):
         self._codBarras = cod
         self._dataEmissao = emissao
         self._dataVencimento = venc

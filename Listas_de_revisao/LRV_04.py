@@ -1,5 +1,5 @@
 class Viagem:
-    """Modela uma viagem de carro."""
+  
 
     def __init__(self, destino: str, distancia_km: float, combustivel_l: float):
         self.destino = destino              
@@ -49,7 +49,7 @@ class Viagem:
 
 
 class ViagemUI:
-    """Interface de linha de comando para Viagem."""
+    
 
     @staticmethod
     def menu() -> int:
@@ -69,7 +69,7 @@ class ViagemUI:
             litros = float(input("Combustível gasto (L): "))
             viagem = Viagem(destino, distancia, litros)   
         except ValueError as e:
-            print("⚠️  Erro:", e)
+            print("Erro:", e)
             return
 
         print("\nDados da viagem:")
@@ -85,7 +85,7 @@ class ViagemUI:
             elif opc == 2:
                 break
             else:
-                print("⚠️  Opção inválida.")
+                print("Opção inválida.")
 
 
 
@@ -161,7 +161,7 @@ class PaisUI:
             area = float(input("Área (km²): "))
             pais = Pais(nome, pop, area)   
         except ValueError as e:
-            print("⚠️  Erro:", e)
+            print("Erro:", e)
             return
 
         print("\nDados do país:")
@@ -177,7 +177,7 @@ class PaisUI:
             elif opc == 2:
                 break
             else:
-                print("⚠️  Opção inválida.")
+                print("Opção inválida.")
 
 
 if __name__ == "__main__":
