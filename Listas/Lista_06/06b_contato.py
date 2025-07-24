@@ -7,7 +7,7 @@ class Contato:
         self.nome = nome
         self.email = email
         self.fone = fone
-        self.nascimento = nascimento  # deve estar no formato 'dd/mm/aaaa'
+        self.nascimento = nascimento 
 
     def __str__(self):
         return f"ID: {self.id}, Nome: {self.nome}, Email: {self.email}, Fone: {self.fone}, Nascimento: {self.nascimento}"
