@@ -21,3 +21,4 @@ print(x.situacao())
 x.pagar(100)
 print(x.situacao())
 
+
