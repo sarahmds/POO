@@ -5,4 +5,3 @@ class IndexUI:
         ManterClienteUI.main()
 
 IndexUI.main()
-
