@@ -1,5 +1,4 @@
 import json
-from models.horario import Horario 
 class Horario:
     __objetos = []
 
