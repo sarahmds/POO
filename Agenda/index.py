@@ -23,8 +23,14 @@ class IndexUI:
         IndexUI.menu_admin()
 
     @staticmethod
+
     def main():
-        IndexUI.sidebar()
+        ManterClienteUI.main()
+
+IndexUI.main()
+
 
 if __name__ == "__main__":
     IndexUI.main()
+
+

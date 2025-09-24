@@ -4,8 +4,8 @@ from models.horario import Horario, HorarioDAO
 
 class View:
 
-    # ---- CLIENTES ----
     @staticmethod
+
     def cliente_inserir(nome, email, fone):
         cliente = Cliente(0, nome, email, fone)
         ClienteDAO.inserir(cliente)
@@ -73,3 +73,4 @@ class View:
     def horario_excluir(id):
         c = Horario(id, None)
         HorarioDAO.excluir(c)
+

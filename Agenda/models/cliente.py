@@ -28,7 +28,7 @@ class Cliente:
     def __str__(self):
         return f"{self.__id} - {self.__nome} - {self.__email} - {self.__fone}"
 
-class ClienteDAO():
+class ClienteDAO:
     __objetos = []
 
     @classmethod
