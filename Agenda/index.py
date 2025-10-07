@@ -9,11 +9,12 @@ from templates.manterhorarioUI import ManterHorarioUI
 from templates.manterprofissionalUI import ManterProfissionalUI
 from templates.manterprofissional_comconta import ManterProfissionalComContaUI
 
+
 def sair_do_sistema():
     if st.sidebar.button("Sair"):
         for k in ["usuario_id", "usuario_nome", "usuario_tipo"]:
             st.session_state.pop(k, None)
-        # Sinaliza que o usuário saiu
+
         st.session_state["sair"] = True
 
 
@@ -55,11 +56,10 @@ class IndexUI:
 
     @staticmethod
     def sidebar():
-        # Atualiza a interface quando o usuário saiu
+
         if st.session_state.get("sair", False):
             st.session_state["sair"] = False
-            st.experimental_rerun = False  # remove se existir
-            IndexUI.sidebar()
+            st.experimental_rerun()  
             return
 
         if "usuario_id" not in st.session_state:
@@ -75,10 +75,11 @@ class IndexUI:
 
     @staticmethod
     def main():
-        # Garante que existe o admin
+
         auth.cliente_criar_admin()
         st.title("Sistema de Agendamento")
         IndexUI.sidebar()
+
 
 
 if __name__ == "__main__":

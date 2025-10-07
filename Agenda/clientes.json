@@ -1,50 +1,9 @@
 [
     {
         "id": 1,
-        "nome": "sarah",
-        "email": "sarah@.com",
-        "fone": "99999999"
-    },
-    {
-        "id": 2,
         "nome": "admin",
         "email": "admin",
         "fone": "fone",
         "senha": "1234"
-    },
-    {
-        "id": 3,
-        "nome": "Sarah",
-        "email": "sarah@gmail.com",
-        "fone": "99999999",
-        "senha": "123"
-    },
-    {
-        "id": 4,
-        "nome": "sarah",
-        "email": "sarah@gmail.com",
-        "fone": "99999999",
-        "senha": "123"
-    },
-    {
-        "id": 5,
-        "nome": "sarah",
-        "email": "sarah@.com",
-        "fone": "99999999",
-        "senha": "123"
-    },
-    {
-        "id": 6,
-        "nome": "sarah",
-        "email": "sarah@.com",
-        "fone": "99999999",
-        "senha": "123"
-    },
-    {
-        "id": 7,
-        "nome": "a",
-        "email": "a",
-        "fone": "a",
-        "senha": "a"
     }
 ]
