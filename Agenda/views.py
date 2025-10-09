@@ -2,14 +2,14 @@ from models.cliente import Cliente, ClienteDAO
 from models.servico import Servico, ServicoDAO
 from models.horario import Horario, HorarioDAO
 from models.profissional import Profissional, ProfissionalDAO
-from datetime import datetime
+from typing import Optional, Dict, Any
 
 class View:
 
     # ---------------------- CLIENTE ----------------------
     @staticmethod
-    def cliente_inserir(nome, email, fone):
-        ClienteDAO.inserir(Cliente(0, nome, email, fone))
+    def cliente_inserir(nome, email, fone, senha):
+        ClienteDAO.inserir(Cliente(0, nome, email, fone, senha)) 
 
     @staticmethod
     def cliente_listar():
@@ -20,12 +20,16 @@ class View:
         return ClienteDAO.listar_id(id)
 
     @staticmethod
-    def cliente_atualizar(id, nome, email, fone):
-        ClienteDAO.atualizar(Cliente(id, nome, email, fone))
+    def cliente_atualizar(id, nome, email, fone, senha):
+        ClienteDAO.atualizar(Cliente(id, nome, email, fone, senha))
 
     @staticmethod
     def cliente_excluir(id):
-        ClienteDAO.excluir(Cliente(id, "", "", ""))
+        ClienteDAO.excluir(Cliente(id, "", "", "", ""))
+
+    @staticmethod
+    def cliente_autenticar(email: str, senha: str) -> Optional[Dict[str, Any]]:
+        return ClienteDAO.autenticar(email, senha)
 
 
     # ---------------------- SERVIÇO ----------------------
@@ -50,7 +54,7 @@ class View:
         ServicoDAO.excluir(Servico(id, "", 0.0))
 
 
- # ---------------------- HORÁRIO ----------------------
+    # ---------------------- HORÁRIO ----------------------
     @staticmethod
     def horario_inserir(data, confirmado, id_cliente, id_servico, id_profissional):
         c = Horario(0, data)
@@ -76,37 +80,28 @@ class View:
     @staticmethod
     def horario_excluir(id):
         HorarioDAO.excluir(Horario(id, None))
-   # ---------------------- PROFISSIONAL ----------------------
-@staticmethod
-def profissional_inserir(nome, profissao, email, senha):
-    """
-    Insere um novo profissional com nome, profissão, email e senha.
-    """
-    ProfissionalDAO.inserir(Profissional(0, nome, profissao, email, senha))
 
-@staticmethod
-def profissional_listar():
-    return ProfissionalDAO.listar()
 
-@staticmethod
-def profissional_listar_id(id):
-    return ProfissionalDAO.listar_id(id)
+    @staticmethod
+    def profissional_inserir(nome, especialidade, conselho, email, senha):
+        ProfissionalDAO.inserir(Profissional(0, nome, especialidade, conselho, email, senha))
 
-@staticmethod
-def profissional_atualizar(id, nome, profissao, email, senha):
-    ProfissionalDAO.atualizar(Profissional(id, nome, profissao, email, senha))
+    @staticmethod
+    def profissional_listar():
+        return ProfissionalDAO.listar()
 
-@staticmethod
-def profissional_excluir(id):
-    ProfissionalDAO.excluir(Profissional(id, "", "", "", ""))
+    @staticmethod
+    def profissional_listar_id(id):
+        return ProfissionalDAO.listar_id(id)
 
-@staticmethod
-def profissional_autenticar(email, senha):
-    """
-    Autenticação via email e senha.
-    Retorna True se existir um profissional com email e senha fornecidos.
-    """
-    for prof in ProfissionalDAO.listar():
-        if prof.get_email() == email and prof.get_senha() == senha:
-            return True
-    return False
+    @staticmethod
+    def profissional_atualizar(id, nome, especialidade, conselho, email, senha):
+        ProfissionalDAO.atualizar(Profissional(id, nome, especialidade, conselho, email, senha))
+
+    @staticmethod
+    def profissional_excluir(id):
+        ProfissionalDAO.excluir(Profissional(id, "", "", "", "", ""))
+
+    @staticmethod
+    def profissional_autenticar(email: str, senha: str) -> Optional[Dict[str, Any]]:
+        return ProfissionalDAO.autenticar(email, senha)

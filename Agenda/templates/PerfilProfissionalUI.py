@@ -2,6 +2,7 @@ import streamlit as st
 import auth
 
 class PerfilProfissionalUI:
+    """Interface para o Profissional visualizar e atualizar seus próprios dados."""
     def main():
         st.header("Meus Dados (Profissional)")
 
@@ -19,12 +20,29 @@ class PerfilProfissionalUI:
             st.write("Dados do usuário não encontrados")
             return
 
-        nome = st.text_input("Informe o novo nome", op.get("nome",""))
-        profissao = st.text_input("Informe a nova profissão", op.get("profissao",""))
-        email = st.text_input("Informe o novo e-mail", op.get("email",""))
-        senha = st.text_input("Informe a nova senha", op.get("senha",""), type="password")
+        nome_atual = op.get("nome","")
+        profissao_atual = op.get("profissao","")
+        email_atual = op.get("email","")
+        senha_atual = op.get("senha","") 
+
+        nome = st.text_input("Informe o novo nome", nome_atual)
+        profissao = st.text_input("Informe a nova profissão", profissao_atual)
+        email = st.text_input("Informe o novo e-mail", email_atual)
+        
+        nova_senha = st.text_input("Informe a nova senha (deixe vazio para manter a atual)", type="password")
+
+        senha_para_atualizar = nova_senha if nova_senha else senha_atual
+
 
         if st.button("Atualizar"):
-            auth.profissional_atualizar_raw(usuario_id, nome, profissao, email, senha)
-            st.success("Profissional atualizado com sucesso")
+            if not nome or not email or not profissao:
+                st.error("Nome, E-mail e Profissão são obrigatórios")
+                return
+
+            auth.profissional_atualizar_raw(usuario_id, nome, profissao, email, senha_para_atualizar)
+            
+            if nome != nome_atual:
+                 st.session_state["usuario_nome"] = nome
+                 
+            st.success("Profissional atualizado com sucesso!")
             st.session_state["profissional_atualizado"] = True

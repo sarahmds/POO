@@ -1,59 +1,94 @@
 import streamlit as st
-import pandas as pd
 from views import View
-import time
+from models.cliente import Cliente
 
 class ManterClienteUI:
+    
+    @staticmethod
+    def cadastrar():
+        st.subheader("Cadastrar Novo Cliente")
+        
+        with st.form("form_cliente_cadastro"):
+            nome = st.text_input("Nome")
+            email = st.text_input("Email (Login)")
+            fone = st.text_input("Telefone")
+            senha = st.text_input("Senha", type="password") 
+            
+            submitted = st.form_submit_button("Cadastrar Cliente")
+
+            if submitted:
+                try:
+                    View.cliente_inserir(nome, email, fone, senha) 
+                    st.success(f"Cliente '{nome}' cadastrado com sucesso!")
+                except Exception as e:
+                    st.error(f"Erro ao cadastrar: {e}")
+
+    @staticmethod
+    def atualizar():
+        st.subheader("Atualizar Cliente")
+        clientes = View.cliente_listar()
+        
+        opcoes = {f"{c.get_nome()} ({c.get_email()}) - ID: {c.get_id()}": c for c in clientes}
+        selecionado_str = st.selectbox("Selecione o cliente para atualizar", list(opcoes.keys()))
+        
+        if selecionado_str:
+            op: Cliente = opcoes[selecionado_str]
+            
+            with st.form("form_cliente_atualizar"):
+                nome = st.text_input("Novo Nome", op.get_nome())
+                email = st.text_input("Novo Email (Login)", op.get_email())
+                fone = st.text_input("Novo Telefone", op.get_fone())
+                senha = st.text_input("Nova Senha (deixe vazio para manter a atual)", type="password") 
+                
+                submitted = st.form_submit_button("Atualizar Cliente")
+
+                if submitted:
+                    senha_final = senha if senha else op.get_senha()
+                    try:
+                        View.cliente_atualizar(op.get_id(), nome, email, fone, senha_final)
+                        st.success(f"Cliente '{nome}' atualizado com sucesso!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Erro ao atualizar: {e}")
+
+    @staticmethod
+    def excluir():
+        st.subheader("Excluir Cliente")
+        clientes = View.cliente_listar()
+        
+        opcoes = {f"{c.get_nome()} ({c.get_email()}) - ID: {c.get_id()}": c for c in clientes}
+        selecionado_str = st.selectbox("Selecione o cliente para excluir", list(opcoes.keys()))
+
+        if selecionado_str:
+            op: Cliente = opcoes[selecionado_str]
+            
+            if st.button(f"Confirmar Exclusão de {op.get_nome()}"):
+                try:
+                    View.cliente_excluir(op.get_id())
+                    st.success(f"Cliente '{op.get_nome()}' excluído com sucesso!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Erro ao excluir: {e}")
+
+    @staticmethod
+    def listar():
+        st.subheader("Lista de Clientes")
+        clientes = View.cliente_listar()
+        
+        if not clientes:
+            st.info("Nenhum cliente cadastrado.")
+            return
+
+        dados_tabela = [{"ID": c.get_id(), "Nome": c.get_nome(), "Email": c.get_email(), "Telefone": c.get_fone()} for c in clientes]
+        st.dataframe(dados_tabela, use_container_width=True)
+
+    @staticmethod
     def main():
-        st.header("Cadastro de Clientes")
-        tab1, tab2, tab3, tab4 = st.tabs(["Listar", "Inserir", "Atualizar", "Excluir"])
-        with tab1: ManterClienteUI.listar()
-        with tab2: ManterClienteUI.inserir()
+        st.title("Gerenciamento de Clientes")
+        
+        tab1, tab2, tab3, tab4 = st.tabs(["Cadastrar", "Listar", "Atualizar", "Excluir"])
+        
+        with tab1: ManterClienteUI.cadastrar()
+        with tab2: ManterClienteUI.listar()
         with tab3: ManterClienteUI.atualizar()
         with tab4: ManterClienteUI.excluir()
-
-    def listar():
-        clientes = View.cliente_listar()
-        if len(clientes) == 0: st.write("Nenhum cliente cadastrado")
-        else:
-            list_dic = []
-            for obj in clientes: list_dic.append(obj.to_json())
-            df = pd.DataFrame(list_dic)
-            st.dataframe(df)
-
-    def inserir():
-        nome = st.text_input("Informe o nome")
-        email = st.text_input("Informe o e-mail")
-        fone = st.text_input("Informe o fone")
-        if st.button("Inserir"):
-            View.cliente_inserir(nome, email, fone)
-            st.success("Cliente inserido com sucesso")
-            time.sleep(2)
-            st.rerun()
-
-    def atualizar():
-        clientes = View.cliente_listar()
-        if len(clientes) == 0: st.write("Nenhum cliente cadastrado")
-        else:
-            op = st.selectbox("Atualização de Clientes", clientes)
-            nome = st.text_input("Informe o novo nome", op.get_nome())
-            email = st.text_input("Informe o novo e-mail", op.get_email())
-            fone = st.text_input("Informe o novo fone", op.get_fone())
-            if st.button("Atualizar"):
-                id = op.get_id()
-                View.cliente_atualizar(id, nome, email, fone)
-                st.success("Cliente atualizado com sucesso")
-                time.sleep(2)
-                st.rerun()
-
-    def excluir():
-        clientes = View.cliente_listar()
-        if len(clientes) == 0: st.write("Nenhum cliente cadastrado")
-        else:
-            op = st.selectbox("Exclusão de Clientes", clientes)
-            if st.button("Excluir"):
-                id = op.get_id()
-                View.cliente_excluir(id)
-                st.success("Cliente excluído com sucesso")
-                time.sleep(2)
-                st.rerun()

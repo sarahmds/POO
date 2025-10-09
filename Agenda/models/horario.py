@@ -2,15 +2,16 @@ import json
 from datetime import datetime
 
 class Horario:
+
     def __init__(self, id, data):
         self.set_id(id)
         self.set_data(data)
         self.set_confirmado(False)
         self.set_id_cliente(0)
         self.set_id_servico(0)
-        self.set_id_profissional(0)
+        self.set_id_profissional(0) 
 
-    # ---------- GETTERS ----------
+
     def get_id(self): return self.__id
     def get_data(self): return self.__data
     def get_confirmado(self): return self.__confirmado
@@ -18,7 +19,7 @@ class Horario:
     def get_id_servico(self): return self.__id_servico
     def get_id_profissional(self): return self.__id_profissional
 
-    # ---------- SETTERS ----------
+
     def set_id(self, id): self.__id = id
     def set_data(self, data): self.__data = data
     def set_confirmado(self, confirmado): self.__confirmado = confirmado
@@ -26,7 +27,7 @@ class Horario:
     def set_id_servico(self, id_servico): self.__id_servico = id_servico
     def set_id_profissional(self, id_profissional): self.__id_profissional = id_profissional
 
-    # ---------- SERIALIZAÇÃO JSON ----------
+ 
     def to_json(self):
         return {
             "id": self.__id,
@@ -55,6 +56,7 @@ class Horario:
 
 
 class HorarioDAO:
+
     __objetos = []
 
     @classmethod

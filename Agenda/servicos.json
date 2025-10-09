@@ -1,1 +1,7 @@
-[{"id": 1, "descricao": "consulta", "preco": 80.0}]
+[
+    {
+        "id": 2,
+        "descricao": "dentista",
+        "preco": 25.0
+    }
+]
