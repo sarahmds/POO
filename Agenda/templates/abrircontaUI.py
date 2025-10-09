@@ -24,4 +24,4 @@ class AbrirContaUI:
 
         if st.session_state.conta_criada:
             st.success("Conta de cliente criada com sucesso!")
-            st.session_state.conta_criada = False # Reseta o estado
+            st.session_state.conta_criada = False # 

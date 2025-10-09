@@ -19,7 +19,6 @@ class ManterProfissionalUI:
 
             if submitted:
                 try:
-                    # Agora inclui 'conselho' na chamada
                     View.profissional_inserir(nome, especialidade, conselho, email, senha)  
                     st.success(f"Profissional '{nome}' cadastrado com sucesso!")
                 except Exception as e:
@@ -50,7 +49,7 @@ class ManterProfissionalUI:
                     try:
                         View.profissional_atualizar(op.get_id(), nome, especialidade, conselho, email, senha_final)
                         st.success(f"Profissional '{nome}' atualizado com sucesso!")
-                        st.experimental_rerun()
+                        st.set_query_params(refresh="true")
                     except Exception as e:
                         st.error(f"Erro ao atualizar: {e}")
 
@@ -69,7 +68,7 @@ class ManterProfissionalUI:
                 try:
                     View.profissional_excluir(op.get_id())
                     st.success(f"Profissional '{op.get_nome()}' excluído com sucesso!")
-                    st.experimental_rerun()
+                    st.set_query_params(refresh="true")
                 except Exception as e:
                     st.error(f"Erro ao excluir: {e}")
 

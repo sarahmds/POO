@@ -7,5 +7,13 @@
         "email": "ana@.com",
         "senha": "1234",
         "especialidade": "dentista"
+    },
+    {
+        "id": 2,
+        "nome": "a",
+        "especialidade": "a",
+        "conselho": "c",
+        "email": "a",
+        "senha": "a"
     }
 ]

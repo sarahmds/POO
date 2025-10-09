@@ -21,7 +21,7 @@ class Profissional:
     # Setters
     def set_nome(self, nome: str): self.__nome = nome
     def set_especialidade(self, especialidade: str): self.__especialidade = especialidade
-    def set_conselho(self, conselho: str): self.__conselho = conselho # Novo método
+    def set_conselho(self, conselho: str): self.__conselho = conselho 
     def set_email(self, email: str): self.__email = email
     def set_senha(self, senha: str): self.__senha = senha
 
