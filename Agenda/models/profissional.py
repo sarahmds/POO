@@ -18,7 +18,6 @@ class Profissional:
     def get_email(self): return self.__email
     def get_senha(self): return self.__senha
 
-    # Setters
     def set_nome(self, nome: str): self.__nome = nome
     def set_especialidade(self, especialidade: str): self.__especialidade = especialidade
     def set_conselho(self, conselho: str): self.__conselho = conselho 

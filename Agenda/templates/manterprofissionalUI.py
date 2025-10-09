@@ -11,7 +11,7 @@ class ManterProfissionalUI:
         with st.form("form_profissional_cadastro"):
             nome = st.text_input("Nome")
             especialidade = st.text_input("Especialidade")
-            conselho = st.text_input("Conselho")  # Corrigido para ter "conselho"
+            conselho = st.text_input("Conselho")  
             email = st.text_input("Email (Login)")
             senha = st.text_input("Senha", type="password")
             
@@ -38,7 +38,7 @@ class ManterProfissionalUI:
             with st.form("form_profissional_atualizar"):
                 nome = st.text_input("Novo Nome", op.get_nome())
                 especialidade = st.text_input("Nova Especialidade", op.get_especialidade()) 
-                conselho = st.text_input("Novo Conselho", op.get_conselho())  # Corrigido o label para ficar consistente
+                conselho = st.text_input("Novo Conselho", op.get_conselho())  
                 email = st.text_input("Novo Email (Login)", op.get_email())
                 senha = st.text_input("Nova Senha (deixe vazio para manter a atual)", type="password") 
                 
@@ -86,7 +86,7 @@ class ManterProfissionalUI:
                 "ID": p.get_id(),
                 "Nome": p.get_nome(),
                 "Especialidade": p.get_especialidade(),
-                "Conselho": p.get_conselho(),  # Corrigido para mostrar "Conselho" corretamente
+                "Conselho": p.get_conselho(),  
                 "Email": p.get_email()
             } 
             for p in profissionais

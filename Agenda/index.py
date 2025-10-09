@@ -77,7 +77,7 @@ class IndexUI:
                 IndexUI.menu_admin()
             elif tipo_usuario == "profissional":
                 IndexUI.menu_profissional()
-            else:  # cliente
+            else:  
                 IndexUI.menu_cliente()
             
             sair_do_sistema()

@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 
 class View:
 
-    # ---------------------- CLIENTE ----------------------
+
     @staticmethod
     def cliente_inserir(nome, email, fone, senha):
         ClienteDAO.inserir(Cliente(0, nome, email, fone, senha)) 
@@ -32,7 +32,7 @@ class View:
         return ClienteDAO.autenticar(email, senha)
 
 
-    # ---------------------- SERVIÇO ----------------------
+
     @staticmethod
     def servico_inserir(descricao, preco):
         ServicoDAO.inserir(Servico(0, descricao, preco))
@@ -54,7 +54,7 @@ class View:
         ServicoDAO.excluir(Servico(id, "", 0.0))
 
 
-    # ---------------------- HORÁRIO ----------------------
+
     @staticmethod
     def horario_inserir(data, confirmado, id_cliente, id_servico, id_profissional):
         c = Horario(0, data)
