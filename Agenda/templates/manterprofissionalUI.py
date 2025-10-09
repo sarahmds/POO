@@ -10,7 +10,8 @@ class ManterProfissionalUI:
         
         with st.form("form_profissional_cadastro"):
             nome = st.text_input("Nome")
-            especialidade = st.text_input("Especialidade") 
+            especialidade = st.text_input("Especialidade")
+            conselho = st.text_input("Conselho")  # Corrigido para ter "conselho"
             email = st.text_input("Email (Login)")
             senha = st.text_input("Senha", type="password")
             
@@ -18,7 +19,8 @@ class ManterProfissionalUI:
 
             if submitted:
                 try:
-                    View.profissional_inserir(nome, especialidade, email, senha) 
+                    # Agora inclui 'conselho' na chamada
+                    View.profissional_inserir(nome, especialidade, conselho, email, senha)  
                     st.success(f"Profissional '{nome}' cadastrado com sucesso!")
                 except Exception as e:
                     st.error(f"Erro ao cadastrar: {e}")
@@ -37,6 +39,7 @@ class ManterProfissionalUI:
             with st.form("form_profissional_atualizar"):
                 nome = st.text_input("Novo Nome", op.get_nome())
                 especialidade = st.text_input("Nova Especialidade", op.get_especialidade()) 
+                conselho = st.text_input("Novo Conselho", op.get_conselho())  # Corrigido o label para ficar consistente
                 email = st.text_input("Novo Email (Login)", op.get_email())
                 senha = st.text_input("Nova Senha (deixe vazio para manter a atual)", type="password") 
                 
@@ -45,9 +48,9 @@ class ManterProfissionalUI:
                 if submitted:
                     senha_final = senha if senha else op.get_senha()
                     try:
-                        View.profissional_atualizar(op.get_id(), nome, especialidade, email, senha_final)
+                        View.profissional_atualizar(op.get_id(), nome, especialidade, conselho, email, senha_final)
                         st.success(f"Profissional '{nome}' atualizado com sucesso!")
-                        st.rerun()
+                        st.experimental_rerun()
                     except Exception as e:
                         st.error(f"Erro ao atualizar: {e}")
 
@@ -66,7 +69,7 @@ class ManterProfissionalUI:
                 try:
                     View.profissional_excluir(op.get_id())
                     st.success(f"Profissional '{op.get_nome()}' excluído com sucesso!")
-                    st.rerun()
+                    st.experimental_rerun()
                 except Exception as e:
                     st.error(f"Erro ao excluir: {e}")
 
@@ -79,7 +82,16 @@ class ManterProfissionalUI:
             st.info("Nenhum profissional cadastrado.")
             return
 
-        dados_tabela = [{"ID": p.get_id(), "Nome": p.get_nome(), "Especialidade": p.get_especialidade(), "Email": p.get_email()} for p in profissionais]
+        dados_tabela = [
+            {
+                "ID": p.get_id(),
+                "Nome": p.get_nome(),
+                "Especialidade": p.get_especialidade(),
+                "Conselho": p.get_conselho(),  # Corrigido para mostrar "Conselho" corretamente
+                "Email": p.get_email()
+            } 
+            for p in profissionais
+        ]
         st.dataframe(dados_tabela, use_container_width=True)
 
     @staticmethod
@@ -88,7 +100,11 @@ class ManterProfissionalUI:
         
         tab1, tab2, tab3, tab4 = st.tabs(["Cadastrar", "Listar", "Atualizar", "Excluir"])
         
-        with tab1: ManterProfissionalUI.cadastrar()
-        with tab2: ManterProfissionalUI.listar()
-        with tab3: ManterProfissionalUI.atualizar()
-        with tab4: ManterProfissionalUI.excluir()
+        with tab1:
+            ManterProfissionalUI.cadastrar()
+        with tab2:
+            ManterProfissionalUI.listar()
+        with tab3:
+            ManterProfissionalUI.atualizar()
+        with tab4:
+            ManterProfissionalUI.excluir()

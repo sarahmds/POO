@@ -123,25 +123,26 @@ def profissional_listar_id_raw(id: int) -> Optional[Dict[str,Any]]:
             return p
     return None
 
-def profissional_inserir_raw(nome: str, profissao: str, email: str = "", senha: str = ""):
+def profissional_inserir_raw(nome: str, especialidade: str, conselho: str = "", email: str = "", senha: str = ""):
     """Insere um novo profissional e salva no arquivo."""
     lista = profissional_listar_raw()
     next_id = 1
     if lista:
         next_id = max([p.get("id",0) for p in lista]) + 1
-    novo = {"id": next_id, "nome": nome, "profissao": profissao, "email": email, "senha": senha}
+    novo = {"id": next_id, "nome": nome, "especialidade": especialidade, "conselho" : conselho, "email": email, "senha": senha}
     lista.append(novo)
     _save_json(PROFISSIONAIS_FILE, lista)
     return novo
 
-def profissional_atualizar_raw(id: int, nome: str, profissao: str, email: str, senha: str) -> bool:
+def profissional_atualizar_raw(id: int, nome: str, especialidade: str, conselho: str, email: str, senha: str) -> bool:
     """Atualiza os dados de um profissional (incluindo conta) e salva no arquivo."""
     lista = profissional_listar_raw()
     changed = False
     for i,p in enumerate(lista):
         if p.get("id") == id:
             lista[i]["nome"] = nome
-            lista[i]["profissao"] = profissao
+            lista[i]["especialidade"] = especialidade
+            lista[i]["conselho"] = conselho
             lista[i]["email"] = email
             lista[i]["senha"] = senha
             changed = True
