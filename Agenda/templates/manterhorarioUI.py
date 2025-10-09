@@ -15,7 +15,7 @@ class ManterHorarioUI:
 
     def listar():
         horarios = View.horario_listar()
-        if len(horarios) == 0:
+        if not horarios:
             st.write("Nenhum horário cadastrado")
         else:
             dic = []
@@ -38,26 +38,19 @@ class ManterHorarioUI:
         servicos = View.servico_listar()
         profissionais = View.profissional_listar()
 
-        data = st.text_input(
-            "Informe a data e horário do serviço",
-            datetime.now().strftime("%d/%m/%Y %H:%M"),
-            key="inserir_data"
-        )
+        data = st.text_input("Informe a data e horário do serviço", datetime.now().strftime("%d/%m/%Y %H:%M"), key="inserir_data")
         confirmado = st.checkbox("Confirmado", key="inserir_confirmado")
-        cliente = st.selectbox("Informe o cliente", clientes, index=None, key="inserir_cliente")
-        servico = st.selectbox("Informe o serviço", servicos, index=None, key="inserir_servico")
-        profissional = st.selectbox("Informe o profissional", profissionais, index=None, key="inserir_profissional")
+        cliente = st.selectbox("Informe o cliente", clientes, key="inserir_cliente")
+        servico = st.selectbox("Informe o serviço", servicos, key="inserir_servico")
+        profissional = st.selectbox("Informe o profissional", profissionais, key="inserir_profissional")
 
         if st.button("Inserir", key="inserir_btn"):
-            id_cliente = cliente.get_id() if cliente else None
-            id_servico = servico.get_id() if servico else None
-            id_profissional = profissional.get_id() if profissional else None
             View.horario_inserir(
                 datetime.strptime(data, "%d/%m/%Y %H:%M"),
                 confirmado,
-                id_cliente,
-                id_servico,
-                id_profissional
+                cliente.get_id() if cliente else None,
+                servico.get_id() if servico else None,
+                profissional.get_id() if profissional else None
             )
             st.success("Horário inserido com sucesso")
             time.sleep(2)
@@ -65,70 +58,59 @@ class ManterHorarioUI:
 
     def atualizar():
         horarios = View.horario_listar()
-        if len(horarios) == 0:
+        if not horarios:
             st.write("Nenhum horário cadastrado")
-        else:
-            clientes = View.cliente_listar()
-            servicos = View.servico_listar()
-            profissionais = View.profissional_listar()
+            return
 
-            op = st.selectbox("Atualização de Horários", horarios, key="atualizar_horario")
-            
-            data = st.text_input(
-                "Informe a nova data e horário",
-                op.get_data().strftime("%d/%m/%Y %H:%M"),
-                key=f"data_{op.get_id()}"
-            )
-            confirmado = st.checkbox(
-                "Confirmado",
-                value=op.get_confirmado(),
-                key=f"confirmado_{op.get_id()}"
-            )
+        clientes = View.cliente_listar()
+        servicos = View.servico_listar()
+        profissionais = View.profissional_listar()
 
-            id_cliente = op.get_id_cliente()
-            id_servico = op.get_id_servico()
-            id_profissional = op.get_id_profissional()
+        op = st.selectbox("Atualização de Horários", horarios, key="atualizar_horario")
+        data = st.text_input("Informe a nova data e horário", op.get_data().strftime("%d/%m/%Y %H:%M"), key=f"data_{op.get_id()}")
+        confirmado = st.checkbox("Confirmado", value=op.get_confirmado(), key=f"confirmado_{op.get_id()}")
 
-            cliente = st.selectbox(
-                "Novo cliente",
-                clientes,
-                index=next((i for i, c in enumerate(clientes) if c.get_id() == id_cliente), 0),
-                key=f"cliente_{op.get_id()}"
-            )
-            servico = st.selectbox(
-                "Novo serviço",
-                servicos,
-                index=next((i for i, s in enumerate(servicos) if s.get_id() == id_servico), 0),
-                key=f"servico_{op.get_id()}"
-            )
-            profissional = st.selectbox(
-                "Novo profissional",
-                profissionais,
-                index=next((i for i, p in enumerate(profissionais) if p.get_id() == id_profissional), 0),
-                key=f"profissional_{op.get_id()}"
-            )
+        cliente = st.selectbox(
+            "Novo cliente",
+            clientes,
+            index=next((i for i, c in enumerate(clientes) if c.get_id() == op.get_id_cliente()), 0),
+            key=f"cliente_{op.get_id()}"
+        )
+        servico = st.selectbox(
+            "Novo serviço",
+            servicos,
+            index=next((i for i, s in enumerate(servicos) if s.get_id() == op.get_id_servico()), 0),
+            key=f"servico_{op.get_id()}"
+        )
+        profissional = st.selectbox(
+            "Novo profissional",
+            profissionais,
+            index=next((i for i, p in enumerate(profissionais) if p.get_id() == op.get_id_profissional()), 0),
+            key=f"profissional_{op.get_id()}"
+        )
 
-            if st.button("Atualizar", key=f"atualizar_btn_{op.get_id()}"):
-                View.horario_atualizar(
-                    op.get_id(),
-                    datetime.strptime(data, "%d/%m/%Y %H:%M"),
-                    confirmado,
-                    cliente.get_id() if cliente else None,
-                    servico.get_id() if servico else None,
-                    profissional.get_id() if profissional else None
-                )
-                st.success("Horário atualizado com sucesso")
-                time.sleep(2)
-                st.rerun()
+        if st.button("Atualizar", key=f"atualizar_btn_{op.get_id()}"):
+            View.horario_atualizar(
+                op.get_id(),
+                datetime.strptime(data, "%d/%m/%Y %H:%M"),
+                confirmado,
+                cliente.get_id() if cliente else None,
+                servico.get_id() if servico else None,
+                profissional.get_id() if profissional else None
+            )
+            st.success("Horário atualizado com sucesso")
+            time.sleep(2)
+            st.rerun()
 
     def excluir():
         horarios = View.horario_listar()
-        if len(horarios) == 0:
+        if not horarios:
             st.write("Nenhum horário cadastrado")
-        else:
-            op = st.selectbox("Exclusão de Horários", horarios, key="excluir_horario")
-            if st.button("Excluir", key=f"excluir_btn_{op.get_id()}"):
-                View.horario_excluir(op.get_id())
-                st.success("Horário excluído com sucesso")
-                time.sleep(2)
-                st.rerun()
+            return
+
+        op = st.selectbox("Exclusão de Horários", horarios, key="excluir_horario")
+        if st.button("Excluir", key=f"excluir_btn_{op.get_id()}"):
+            View.horario_excluir(op.get_id())
+            st.success("Horário excluído com sucesso")
+            time.sleep(2)
+            st.rerun()

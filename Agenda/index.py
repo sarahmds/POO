@@ -59,7 +59,7 @@ class IndexUI:
 
         if st.session_state.get("sair", False):
             st.session_state["sair"] = False
-            st.experimental_rerun()  
+            st.rerun()  
             return
 
         if "usuario_id" not in st.session_state:
@@ -75,12 +75,11 @@ class IndexUI:
 
     @staticmethod
     def main():
-
         auth.cliente_criar_admin()
         st.title("Sistema de Agendamento")
         IndexUI.sidebar()
 
 
-
 if __name__ == "__main__":
     IndexUI.main()
+
