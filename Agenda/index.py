@@ -1,5 +1,6 @@
 import streamlit as st
 import auth
+
 from templates.loginUI import LoginUI
 from templates.abrircontaUI import AbrirContaUI
 from templates.perfilclienteUI import PerfilClienteUI
@@ -8,6 +9,7 @@ from templates.manterclienteUI import ManterClienteUI
 from templates.manterservicoUI import ManterServicoUI
 from templates.manterhorarioUI import ManterHorarioUI
 from templates.manterprofissionalUI import ManterProfissionalUI
+from templates.abrir_agendaUI import AbrirAgendaUI 
 
 def sair_do_sistema():
     """Função para limpar os dados da sessão e deslogar o usuário."""
@@ -26,20 +28,33 @@ class IndexUI:
             LoginUI.main()
         elif op == "Abrir Conta":
             AbrirContaUI.main()
-            
+
     @staticmethod
     def menu_cliente():
         """Menu exibido para clientes logados."""
         op = st.sidebar.selectbox("Menu", ["Meus Dados"])
         if op == "Meus Dados":
-            PerfilClienteUI.main()  
+            PerfilClienteUI.main()
 
     @staticmethod
     def menu_profissional():
         """Menu exibido para profissionais logados."""
-        op = st.sidebar.selectbox("Menu", ["Meus Dados"])
+        op = st.sidebar.selectbox("Menu", [
+            "Meus Dados",
+            "Abrir Minha Agenda",
+            "Visualizar Minha Agenda",
+            "Confirmar Serviço"
+        ])
+
         if op == "Meus Dados":
-            PerfilProfissionalUI.main() 
+            PerfilProfissionalUI.main()
+        elif op == "Abrir Minha Agenda":
+            profissional_id = st.session_state.get("usuario_id")
+            AbrirAgendaUI.main(profissional_id)
+        elif op == "Visualizar Minha Agenda":
+            st.info("Funcionalidade ainda não implementada.")
+        elif op == "Confirmar Serviço":
+            st.info("Funcionalidade ainda não implementada.")
 
     @staticmethod
     def menu_admin():
@@ -58,7 +73,7 @@ class IndexUI:
             ManterHorarioUI.main()
         elif op == "Cadastro de Profissionais":
             ManterProfissionalUI.main()
-            
+
     @staticmethod
     def sidebar():
         """Controla a barra lateral e o redirecionamento baseado no estado da sessão."""
@@ -72,22 +87,23 @@ class IndexUI:
         else:
             tipo_usuario = st.session_state.get("usuario_tipo", "")
             st.sidebar.write("Bem-vindo(a), " + st.session_state.get("usuario_nome", ""))
-            
+
             if tipo_usuario == "admin":
                 IndexUI.menu_admin()
             elif tipo_usuario == "profissional":
                 IndexUI.menu_profissional()
-            else:  
+            else:
                 IndexUI.menu_cliente()
-            
+
             sair_do_sistema()
 
     @staticmethod
     def main():
         """Função principal do aplicativo Streamlit."""
-        auth.cliente_criar_admin()
+        auth.cliente_criar_admin()  
         st.title("Sistema de Agendamento")
         IndexUI.sidebar()
+
 
 if __name__ == "__main__":
     IndexUI.main()

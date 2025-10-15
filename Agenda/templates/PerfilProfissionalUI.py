@@ -5,7 +5,7 @@ class PerfilProfissionalUI:
 
     @staticmethod
     def main():
-        st.header("Meus Dados (Profissional)")
+        st.header("Meus Dados")
 
         if "usuario_id" not in st.session_state:
             st.write("Nenhum usuário logado")
