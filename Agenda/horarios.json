@@ -2166,5 +2166,13 @@
         "id_cliente": null,
         "id_servico": null,
         "id_profissional": 3
+    },
+    {
+        "id": 273,
+        "data": "16/10/2025 14:30",
+        "confirmado": false,
+        "id_cliente": 1,
+        "id_servico": 2,
+        "id_profissional": 1
     }
 ]

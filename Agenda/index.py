@@ -10,6 +10,7 @@ from templates.manterservicoUI import ManterServicoUI
 from templates.manterhorarioUI import ManterHorarioUI
 from templates.manterprofissionalUI import ManterProfissionalUI
 from templates.abrir_agendaUI import AbrirAgendaUI 
+from templates.visualizar_minha_agenda_UI import VisualizarMinhaAgendaUI 
 
 def sair_do_sistema():
     """Função para limpar os dados da sessão e deslogar o usuário."""
@@ -32,9 +33,14 @@ class IndexUI:
     @staticmethod
     def menu_cliente():
         """Menu exibido para clientes logados."""
-        op = st.sidebar.selectbox("Menu", ["Meus Dados"])
+        op = st.sidebar.selectbox("Menu", ["Meus Dados", "Meus Serviços"])
         if op == "Meus Dados":
             PerfilClienteUI.main()
+        elif op == "Meus Serviços":
+            from templates.visualizar_meus_servicos_UI import VisualizarMeusServicosUI
+            cliente_id = st.session_state.get("usuario_id")
+            VisualizarMeusServicosUI.main(cliente_id)
+
 
     @staticmethod
     def menu_profissional():
@@ -52,9 +58,12 @@ class IndexUI:
             profissional_id = st.session_state.get("usuario_id")
             AbrirAgendaUI.main(profissional_id)
         elif op == "Visualizar Minha Agenda":
-            st.info("Funcionalidade ainda não implementada.")
+            profissional_id = st.session_state.get("usuario_id")
+            VisualizarMinhaAgendaUI.main(profissional_id)
         elif op == "Confirmar Serviço":
-            st.info("Funcionalidade ainda não implementada.")
+            from templates.confirmar_servico_UI import ConfirmarServicoUI
+            profissional_id = st.session_state.get("usuario_id")
+            ConfirmarServicoUI.main(profissional_id)
 
     @staticmethod
     def menu_admin():
