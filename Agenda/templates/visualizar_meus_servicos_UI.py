@@ -9,12 +9,10 @@ class VisualizarMeusServicosUI:
 
         st.title("Meus Serviços")
 
-        # Verifica se a agenda existe no session_state
         if 'agenda' not in st.session_state or st.session_state.agenda.empty:
             st.warning("Nenhum serviço encontrado. Nenhum horário foi agendado ainda.")
             return
 
-        # Filtra os serviços agendados para este cliente
         df_cliente = st.session_state.agenda[
             st.session_state.agenda['cliente'] == cliente_id
         ].copy()
@@ -23,13 +21,11 @@ class VisualizarMeusServicosUI:
             st.info("Você ainda não possui serviços agendados.")
             return
 
-        # Seleciona as colunas relevantes para exibição
         df_cliente = df_cliente[['id', 'data', 'confirmado', 'serviço', 'profissional']]
 
-        # Exibe tabela formatada (somente leitura)
         st.data_editor(
             df_cliente,
-            hide_index=True,
+            hide_index=False,
             disabled=True,
             column_config={
                 "id": st.column_config.Column("id", width="small"),

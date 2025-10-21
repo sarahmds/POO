@@ -12,5 +12,12 @@
         "email": "cliente",
         "fone": "",
         "senha": "123"
+    },
+    {
+        "id": 3,
+        "nome": "cliente",
+        "email": "cliente",
+        "fone": "",
+        "senha": "123"
     }
 ]

@@ -33,13 +33,19 @@ class IndexUI:
     @staticmethod
     def menu_cliente():
         """Menu exibido para clientes logados."""
-        op = st.sidebar.selectbox("Menu", ["Meus Dados", "Meus Serviços"])
+        op = st.sidebar.selectbox("Menu", ["Meus Dados", "Agendar Serviço", "Meus Serviços"])
+
+        cliente_id = st.session_state.get("usuario_id")
+
         if op == "Meus Dados":
             PerfilClienteUI.main()
+        elif op == "Agendar Serviço":
+            from templates.agendar_servico_UI import AgendarServicoUI
+            AgendarServicoUI.main(cliente_id)
         elif op == "Meus Serviços":
             from templates.visualizar_meus_servicos_UI import VisualizarMeusServicosUI
-            cliente_id = st.session_state.get("usuario_id")
             VisualizarMeusServicosUI.main(cliente_id)
+
 
 
     @staticmethod

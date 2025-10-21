@@ -1,14 +1,5 @@
 [
     {
-        "id": 1,
-        "nome": "ana",
-        "profissao": "dentista",
-        "conselho": "cro",
-        "email": "ana@.com",
-        "senha": "1234",
-        "especialidade": "dentista"
-    },
-    {
         "id": 3,
         "nome": "x",
         "especialidade": "x",

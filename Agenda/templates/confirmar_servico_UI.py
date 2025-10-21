@@ -9,12 +9,10 @@ class ConfirmarServicoUI:
 
         st.title("Confirmar Serviço")
 
-        # Verifica se a agenda existe
         if 'agenda' not in st.session_state or st.session_state.agenda.empty:
             st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
             return
 
-        # Filtra horários do profissional logado que têm cliente agendado
         df_profissional = st.session_state.agenda[
             (st.session_state.agenda['profissional'] == profissional_id) &
             (st.session_state.agenda['cliente'].notna())
@@ -24,7 +22,6 @@ class ConfirmarServicoUI:
             st.info("Nenhum serviço agendado por clientes para confirmar.")
             return
 
-        # Opções de horários disponíveis para confirmação
         opcoes_horarios = [
             f"{row['id']} - {row['data'].strftime('%d/%m/%Y %H:%M')} - {row['confirmado']}"
             for _, row in df_profissional.iterrows()
@@ -32,13 +29,10 @@ class ConfirmarServicoUI:
 
         horario_escolhido = st.selectbox("Informe o horário", opcoes_horarios)
 
-        # Extrai o ID do horário selecionado
         horario_id = int(horario_escolhido.split(" - ")[0])
 
-        # Filtra o horário selecionado
         horario = df_profissional[df_profissional["id"] == horario_id].iloc[0]
 
-        # Opções de clientes (simples, usando id e dados básicos)
         clientes = st.session_state.agenda['cliente'].dropna().unique()
 
         if len(clientes) > 0:
@@ -49,7 +43,6 @@ class ConfirmarServicoUI:
             return
 
         if st.button("Confirmar"):
-            # Atualiza o status do horário selecionado
             idx = st.session_state.agenda[
                 st.session_state.agenda["id"] == horario_id
             ].index[0]
@@ -58,7 +51,6 @@ class ConfirmarServicoUI:
 
             st.success("Serviço confirmado com sucesso!")
 
-            # Atualiza a visualização em tempo real
             st.dataframe(st.session_state.agenda[
                 st.session_state.agenda["profissional"] == profissional_id
             ][["id", "data", "confirmado", "cliente", "serviço"]])
