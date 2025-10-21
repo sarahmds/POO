@@ -1,7 +1,7 @@
 [
     {
-        "id": 2,
-        "descricao": "dentista",
-        "preco": 25.99
+        "id": 1,
+        "descricao": "serviço",
+        "preco": 0.0
     }
 ]

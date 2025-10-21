@@ -1,5 +1,7 @@
 from typing import Optional, Dict, Any, List
 
+clientes_storage: List[Dict[str, Any]] = []
+
 class Cliente:
     def __init__(self, id: int, nome: str, email: str, fone: str, senha: str):
         self.__id = id
@@ -33,26 +35,34 @@ class Cliente:
 class ClienteDAO:
     @staticmethod
     def inserir(c: Cliente):
-        auth.cliente_inserir_raw(c.get_nome(), c.get_email(), c.get_fone(), c.get_senha())
+        clientes_storage.append(c.to_json())
 
     @staticmethod
     def listar() -> List[Cliente]:
-        return [Cliente.from_json(c) for c in auth.cliente_listar_raw()]
+        return [Cliente.from_json(c) for c in clientes_storage]
 
     @staticmethod
     def listar_id(id: int) -> Optional[Cliente]:
-        raw_data = auth.cliente_listar_id_raw(id)
+        raw_data = next((c for c in clientes_storage if c["id"] == id), None)
         return Cliente.from_json(raw_data) if raw_data else None
 
     @staticmethod
     def atualizar(c: Cliente) -> bool:
-        return auth.cliente_atualizar_raw(c.get_id(), c.get_nome(), c.get_email(), c.get_fone(), c.get_senha())
+        raw_data = next((cl for cl in clientes_storage if cl["id"] == c.get_id()), None)
+        if raw_data:
+            raw_data.update(c.to_json())
+            return True
+        return False
 
     @staticmethod
     def excluir(c: Cliente) -> bool:
-        return auth.cliente_excluir_raw(c.get_id())
+        global clientes_storage
+        for i, cl in enumerate(clientes_storage):
+            if cl["id"] == c.get_id():
+                clientes_storage.pop(i)
+                return True
+        return False
 
     @staticmethod
     def autenticar(email: str, senha: str) -> Optional[Dict[str, Any]]:
-        """Autentica o cliente usando a função raw do módulo auth."""
-        return auth.cliente_autenticar(email, senha)
+        return next((c for c in clientes_storage if c["email"] == email and c["senha"] == senha), None)
