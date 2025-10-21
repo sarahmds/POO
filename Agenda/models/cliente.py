@@ -1,4 +1,3 @@
-import auth
 from typing import Optional, Dict, Any, List
 
 class Cliente:

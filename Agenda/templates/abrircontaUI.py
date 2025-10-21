@@ -1,6 +1,4 @@
 import streamlit as st
-import auth
-
 class AbrirContaUI:
     """Interface de usuário para a abertura de conta de cliente."""
     def main():

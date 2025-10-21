@@ -1,6 +1,4 @@
 import streamlit as st
-import auth
-
 class PerfilProfissionalUI:
 
     @staticmethod

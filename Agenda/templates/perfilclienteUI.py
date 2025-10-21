@@ -1,6 +1,4 @@
 import streamlit as st
-import auth
-
 class PerfilClienteUI:
     """Interface para o Cliente visualizar e atualizar seus próprios dados."""
     def main():

@@ -1,6 +1,4 @@
 import streamlit as st
-import auth
-
 from templates.loginUI import LoginUI
 from templates.abrircontaUI import AbrirContaUI
 from templates.perfilclienteUI import PerfilClienteUI
@@ -114,8 +112,7 @@ class IndexUI:
 
     @staticmethod
     def main():
-        """Função principal do aplicativo Streamlit."""
-        auth.cliente_criar_admin()  
+        """Função principal do aplicativo Streamlit.""" 
         st.title("Sistema de Agendamento")
         IndexUI.sidebar()
 
