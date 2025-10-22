@@ -14,10 +14,15 @@ class AbrirContaUI:
         senha = st.text_input("Senha", type="password")
 
         if st.button("Criar Conta"):
-            if not nome or not email or not senha:
-                st.error("Nome, e-mail e senha são obrigatórios")
-                return
+            try:
+                if not nome or not email or not senha:
+                    raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
-            # Cria cliente no DAO
-            View.cliente_inserir(nome, email, fone, senha)
-            st.success("Conta criada com sucesso! Você já pode logar.")
+                View.cliente_inserir(nome, email, fone, senha)
+                st.success("Conta criada com sucesso! Você já pode logar.")
+
+            except ValueError as ve:
+                st.error(f"Erro de validação: {ve}")
+
+            except Exception as e:
+                st.error(f"Ocorreu um erro ao criar a conta: {e}")

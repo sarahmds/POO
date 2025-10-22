@@ -1,34 +1,53 @@
+# models/horario.py
 import json
 from datetime import datetime
+from typing import List, Dict, Any
+
+class HorarioException(Exception):
+    """Exceção personalizada para horários inválidos."""
+    pass
 
 class Horario:
 
-    def __init__(self, id, data):
+    def __init__(self, id: int, data: datetime):
         self.set_id(id)
         self.set_data(data)
         self.set_confirmado(False)
         self.set_id_cliente(0)
         self.set_id_servico(0)
-        self.set_id_profissional(0) 
+        self.set_id_profissional(0)
 
+    # Getters
+    def get_id(self) -> int: return self.__id
+    def get_data(self) -> datetime: return self.__data
+    def get_confirmado(self) -> bool: return self.__confirmado
+    def get_id_cliente(self) -> int: return self.__id_cliente
+    def get_id_servico(self) -> int: return self.__id_servico
+    def get_id_profissional(self) -> int: return self.__id_profissional
 
-    def get_id(self): return self.__id
-    def get_data(self): return self.__data
-    def get_confirmado(self): return self.__confirmado
-    def get_id_cliente(self): return self.__id_cliente
-    def get_id_servico(self): return self.__id_servico
-    def get_id_profissional(self): return self.__id_profissional
+    # Setters com validação
+    def set_id(self, id: int):
+        self.__id = id
 
+    def set_data(self, data: datetime):
+        if data.year < 2025:
+            raise HorarioException("Horário não pode ter data anterior a 2025.")
+        self.__data = data
 
-    def set_id(self, id): self.__id = id
-    def set_data(self, data): self.__data = data
-    def set_confirmado(self, confirmado): self.__confirmado = confirmado
-    def set_id_cliente(self, id_cliente): self.__id_cliente = id_cliente
-    def set_id_servico(self, id_servico): self.__id_servico = id_servico
-    def set_id_profissional(self, id_profissional): self.__id_profissional = id_profissional
+    def set_confirmado(self, confirmado: bool):
+        self.__confirmado = confirmado
 
- 
-    def to_json(self):
+    def set_id_cliente(self, id_cliente: int):
+        self.__id_cliente = id_cliente
+
+    def set_id_servico(self, id_servico: int):
+        self.__id_servico = id_servico
+
+    def set_id_profissional(self, id_profissional: int):
+        self.__id_profissional = id_profissional
+
+    # Serialização
+    def to_json(self) -> Dict[str, Any]:
         return {
             "id": self.__id,
             "data": self.__data.strftime("%d/%m/%Y %H:%M"),
@@ -39,7 +58,7 @@ class Horario:
         }
 
     @staticmethod
-    def from_json(dic):
+    def from_json(dic: Dict[str, Any]):
         horario = Horario(
             dic["id"], 
             datetime.strptime(dic["data"], "%d/%m/%Y %H:%M")
@@ -54,13 +73,12 @@ class Horario:
         return f"{self.__id} - {self.__data.strftime('%d/%m/%Y %H:%M')} - Confirmado: {self.__confirmado}"
 
 
-
 class HorarioDAO:
 
-    __objetos = []
+    __objetos: List[Horario] = []
 
     @classmethod
-    def inserir(cls, obj):
+    def inserir(cls, obj: Horario):
         cls.abrir()
         novo_id = max([h.get_id() for h in cls.__objetos], default=0) + 1
         obj.set_id(novo_id)
@@ -68,12 +86,12 @@ class HorarioDAO:
         cls.salvar()
 
     @classmethod
-    def listar(cls):
+    def listar(cls) -> List[Horario]:
         cls.abrir()
         return cls.__objetos
 
     @classmethod
-    def listar_id(cls, id):
+    def listar_id(cls, id: int) -> Horario | None:
         cls.abrir()
         for obj in cls.__objetos:
             if obj.get_id() == id:
@@ -81,7 +99,7 @@ class HorarioDAO:
         return None
 
     @classmethod
-    def atualizar(cls, obj):
+    def atualizar(cls, obj: Horario) -> bool:
         cls.abrir()
         for i, existente in enumerate(cls.__objetos):
             if existente.get_id() == obj.get_id():
@@ -91,7 +109,7 @@ class HorarioDAO:
         return False
 
     @classmethod
-    def excluir(cls, obj):
+    def excluir(cls, obj: Horario):
         cls.abrir()
         cls.__objetos = [h for h in cls.__objetos if h.get_id() != obj.get_id()]
         cls.salvar()

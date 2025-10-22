@@ -11,7 +11,6 @@ class LoginUI:
         senha = st.text_input("Senha", type="password")
 
         if st.button("Entrar"):
-            # Admin fixo
             if email == "admin" and senha == "1234":
                 st.session_state["usuario_id"] = 0
                 st.session_state["usuario_nome"] = "Administrador"
@@ -20,7 +19,6 @@ class LoginUI:
                 st.rerun()
                 return
 
-            # Cliente
             cliente = View.cliente_autenticar(email, senha)
             if cliente:
                 st.session_state["usuario_id"] = cliente["id"]
@@ -30,7 +28,6 @@ class LoginUI:
                 st.rerun()
                 return
 
-            # Profissional
             prof = View.profissional_autenticar(email, senha)
             if prof:
                 st.session_state["usuario_id"] = prof["id"]

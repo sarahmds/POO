@@ -1,10 +1,20 @@
 from typing import Optional, Dict, Any, List
 
-# Armazenamento em memória para simular banco de dados
 profissionais_storage: List[Dict[str, Any]] = []
+
+class ProfissionalException(Exception):
+    """Exceção para erros de validação de Profissional."""
+    pass
 
 class Profissional:
     def __init__(self, id: int, nome: str, especialidade: str, conselho: str, email: str, senha: str):
+        if not nome.strip():
+            raise ProfissionalException("Nome do profissional é obrigatório.")
+        if not email.strip():
+            raise ProfissionalException("Email do profissional é obrigatório.")
+        if not senha.strip():
+            raise ProfissionalException("Senha do profissional é obrigatória.")
+
         self.__id = id
         self.__nome = nome
         self.__especialidade = especialidade
@@ -12,6 +22,7 @@ class Profissional:
         self.__email = email
         self.__senha = senha
 
+    # Getters
     def get_id(self): return self.__id
     def get_nome(self): return self.__nome
     def get_especialidade(self): return self.__especialidade
@@ -19,11 +30,27 @@ class Profissional:
     def get_email(self): return self.__email
     def get_senha(self): return self.__senha
 
-    def set_nome(self, nome: str): self.__nome = nome
-    def set_especialidade(self, especialidade: str): self.__especialidade = especialidade
-    def set_conselho(self, conselho: str): self.__conselho = conselho
-    def set_email(self, email: str): self.__email = email
-    def set_senha(self, senha: str): self.__senha = senha
+    # Setters com validação
+    def set_nome(self, nome: str):
+        if not nome.strip():
+            raise ProfissionalException("Nome do profissional é obrigatório.")
+        self.__nome = nome
+
+    def set_especialidade(self, especialidade: str):
+        self.__especialidade = especialidade
+
+    def set_conselho(self, conselho: str):
+        self.__conselho = conselho
+
+    def set_email(self, email: str):
+        if not email.strip():
+            raise ProfissionalException("Email do profissional é obrigatório.")
+        self.__email = email
+
+    def set_senha(self, senha: str):
+        if not senha.strip():
+            raise ProfissionalException("Senha do profissional é obrigatória.")
+        self.__senha = senha
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -48,6 +75,7 @@ class Profissional:
 
     def __str__(self):
         return f"ID: {self.__id}, Nome: {self.__nome}, Especialidade: {self.__especialidade}, Conselho: {self.__conselho}, Email: {self.__email}"
+
 
 class ProfissionalDAO:
     @staticmethod
