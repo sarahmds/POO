@@ -1,4 +1,3 @@
-# models/horario.py
 import json
 from datetime import datetime
 from typing import List, Dict, Any
@@ -17,7 +16,6 @@ class Horario:
         self.set_id_servico(0)
         self.set_id_profissional(0)
 
-    # Getters
     def get_id(self) -> int: return self.__id
     def get_data(self) -> datetime: return self.__data
     def get_confirmado(self) -> bool: return self.__confirmado
@@ -25,7 +23,6 @@ class Horario:
     def get_id_servico(self) -> int: return self.__id_servico
     def get_id_profissional(self) -> int: return self.__id_profissional
 
-    # Setters com validação
     def set_id(self, id: int):
         self.__id = id
 
@@ -46,7 +43,6 @@ class Horario:
     def set_id_profissional(self, id_profissional: int):
         self.__id_profissional = id_profissional
 
-    # Serialização
     def to_json(self) -> Dict[str, Any]:
         return {
             "id": self.__id,
@@ -73,60 +69,25 @@ class Horario:
         return f"{self.__id} - {self.__data.strftime('%d/%m/%Y %H:%M')} - Confirmado: {self.__confirmado}"
 
 
-class HorarioDAO:
+from .dao import DAO
+import json
 
-    __objetos: List[Horario] = []
-
-    @classmethod
-    def inserir(cls, obj: Horario):
-        cls.abrir()
-        novo_id = max([h.get_id() for h in cls.__objetos], default=0) + 1
-        obj.set_id(novo_id)
-        cls.__objetos.append(obj)
-        cls.salvar()
-
-    @classmethod
-    def listar(cls) -> List[Horario]:
-        cls.abrir()
-        return cls.__objetos
-
-    @classmethod
-    def listar_id(cls, id: int) -> Horario | None:
-        cls.abrir()
-        for obj in cls.__objetos:
-            if obj.get_id() == id:
-                return obj
-        return None
-
-    @classmethod
-    def atualizar(cls, obj: Horario) -> bool:
-        cls.abrir()
-        for i, existente in enumerate(cls.__objetos):
-            if existente.get_id() == obj.get_id():
-                cls.__objetos[i] = obj
-                cls.salvar()
-                return True
-        return False
-
-    @classmethod
-    def excluir(cls, obj: Horario):
-        cls.abrir()
-        cls.__objetos = [h for h in cls.__objetos if h.get_id() != obj.get_id()]
-        cls.salvar()
+class HorarioDAO(DAO):
 
     @classmethod
     def abrir(cls):
-        cls.__objetos = []
+        cls._DAO__objetos = [] 
         try:
             with open("horarios.json", "r", encoding="utf-8") as arquivo:
                 lista_dicts = json.load(arquivo)
+                from .horario import Horario
                 for dic in lista_dicts:
                     horario = Horario.from_json(dic)
-                    cls.__objetos.append(horario)
+                    cls._DAO__objetos.append(horario)
         except (FileNotFoundError, json.JSONDecodeError):
-            cls.__objetos = []
+            cls._DAO__objetos = []
 
     @classmethod
     def salvar(cls):
         with open("horarios.json", "w", encoding="utf-8") as arquivo:
-            json.dump([h.to_json() for h in cls.__objetos], arquivo, ensure_ascii=False, indent=4)
+            json.dump([h.to_json() for h in cls._DAO__objetos], arquivo, ensure_ascii=False, indent=4)

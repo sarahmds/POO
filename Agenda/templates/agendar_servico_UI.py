@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from views import View
 
 class AgendarServicoUI:
 
@@ -19,22 +20,28 @@ class AgendarServicoUI:
             st.info("Nenhum horário disponível no momento.")
             return
 
+        # Mostrar horários disponíveis
         df_disponivel['data_str'] = df_disponivel['data'].astype(str)
         opcao = st.selectbox(
             "Selecione um horário disponível:",
             options=df_disponivel.index,
-            format_func=lambda idx: f"{df_disponivel.loc[idx, 'data']} com {df_disponivel.loc[idx, 'profissional']}"
+            format_func=lambda idx: f"{df_disponivel.loc[idx, 'data']} com Profissional {df_disponivel.loc[idx, 'profissional']}"
         )
 
-        servico = st.text_input("Digite o serviço que deseja agendar:")
+        servicos = View.servico_listar()
+        if not servicos:
+            st.error("Nenhum serviço cadastrado.")
+            return
+
+        servico_opcao = st.selectbox(
+            "Selecione o serviço desejado:",
+            options=servicos,
+            format_func=lambda s: s.get_descricao()
+        )
 
         if st.button("Confirmar Agendamento"):
-            if not servico.strip():
-                st.error("Você deve informar o serviço desejado.")
-                return
-
             st.session_state.agenda.at[opcao, 'cliente'] = cliente_id
-            st.session_state.agenda.at[opcao, 'serviço'] = servico
+            st.session_state.agenda.at[opcao, 'serviço'] = servico_opcao.get_descricao()
             st.session_state.agenda.at[opcao, 'confirmado'] = False
 
             st.success("Serviço agendado com sucesso!")

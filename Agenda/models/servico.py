@@ -25,59 +25,25 @@ class Servico:
     def __str__(self):
         return f"{self.__id} - {self.__descricao} - {self.__preco}"
 
-class ServicoDAO:
-    __objetos = []
+from .dao import DAO
+import json
 
-    @classmethod
-    def inserir(cls, obj):
-        cls.abrir()
-        novo_id = max([s.get_id() for s in cls.__objetos], default=0) + 1
-        obj.set_id(novo_id)
-        cls.__objetos.append(obj)
-        cls.salvar()
-
-    @classmethod
-    def listar(cls):
-        cls.abrir()
-        return cls.__objetos
-
-    @classmethod
-    def listar_id(cls, id):
-        cls.abrir()
-        for obj in cls.__objetos:
-            if obj.get_id() == id:
-                return obj
-        return None
-
-    @classmethod
-    def atualizar(cls, obj):
-        cls.abrir()
-        for i, existente in enumerate(cls.__objetos):
-            if existente.get_id() == obj.get_id():
-                cls.__objetos[i] = obj
-                cls.salvar()
-                return True
-        return False
-
-    @classmethod
-    def excluir(cls, obj):
-        cls.abrir()
-        cls.__objetos = [s for s in cls.__objetos if s.get_id() != obj.get_id()]
-        cls.salvar()
+class ServicoDAO(DAO):
 
     @classmethod
     def abrir(cls):
-        cls.__objetos = []
+        cls._DAO__objetos = []
         try:
-            with open("servicos.json", mode="r", encoding="utf-8") as arquivo:
+            with open("servicos.json", "r", encoding="utf-8") as arquivo:
                 lista_dicts = json.load(arquivo)
+                from .servico import Servico
                 for dic in lista_dicts:
                     servico = Servico.from_json(dic)
-                    cls.__objetos.append(servico)
+                    cls._DAO__objetos.append(servico)
         except (FileNotFoundError, json.JSONDecodeError):
-            cls.__objetos = []
+            cls._DAO__objetos = []
 
     @classmethod
     def salvar(cls):
-        with open("servicos.json", mode="w", encoding="utf-8") as arquivo:
-            json.dump([Servico.to_json(s) for s in cls.__objetos], arquivo, ensure_ascii=False, indent=4)
+        with open("servicos.json", "w", encoding="utf-8") as arquivo:
+            json.dump([s.to_json() for s in cls._DAO__objetos], arquivo, ensure_ascii=False, indent=4)

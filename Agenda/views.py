@@ -3,10 +3,10 @@ from models.servico import Servico, ServicoDAO
 from models.horario import Horario, HorarioDAO
 from models.profissional import Profissional, ProfissionalDAO
 from typing import Optional, Dict, Any, List
+from datetime import datetime
 
 class View:
 
-    # -------------------- Cliente --------------------
     @staticmethod
     def cliente_inserir(nome, email, fone, senha):
         if not nome or not email or not senha:
@@ -44,7 +44,12 @@ class View:
         horarios_cliente = [h for h in HorarioDAO.listar() if h.get_id_cliente() == id]
         if horarios_cliente:
             raise ValueError("Não é possível excluir clientes que tenham horários agendados.")
-        ClienteDAO.excluir(Cliente(id, "", "", "", ""))
+
+        cliente = ClienteDAO.listar_id(id)
+        if not cliente:
+            raise ValueError("Cliente não encontrado.")
+        
+        ClienteDAO.excluir(cliente)
 
     @staticmethod
     def cliente_listar() -> List[Cliente]:
@@ -59,7 +64,6 @@ class View:
         return ClienteDAO.autenticar(email, senha)
 
 
-    # -------------------- Profissional --------------------
     @staticmethod
     def profissional_inserir(nome, especialidade, conselho, email, senha):
         if not nome or not email or not senha:
@@ -97,7 +101,12 @@ class View:
         horarios_prof = [h for h in HorarioDAO.listar() if h.get_id_profissional() == id]
         if horarios_prof:
             raise ValueError("Não é possível excluir profissionais que tenham horários cadastrados.")
-        ProfissionalDAO.excluir(Profissional(id, "", "", "", "", ""))
+
+        profissional = ProfissionalDAO.listar_id(id)
+        if not profissional:
+            raise ValueError("Profissional não encontrado.")
+
+        ProfissionalDAO.excluir(profissional)
 
     @staticmethod
     def profissional_listar() -> List[Profissional]:
@@ -112,7 +121,6 @@ class View:
         return ProfissionalDAO.autenticar(email, senha)
 
 
-    # -------------------- Serviço --------------------
     @staticmethod
     def servico_inserir(descricao: str, preco: float):
         ServicoDAO.inserir(Servico(0, descricao, preco))
@@ -134,7 +142,6 @@ class View:
         ServicoDAO.excluir(Servico(id, "", 0.0))
 
 
-    # -------------------- Horário --------------------
     @staticmethod
     def horario_inserir(data, confirmado, id_cliente, id_servico, id_profissional):
         horarios_existentes = [h for h in HorarioDAO.listar() if h.get_id_profissional() == id_profissional and h.get_data() == data]
@@ -164,9 +171,13 @@ class View:
     @staticmethod
     def horario_excluir(id):
         h = HorarioDAO.listar_id(id)
-        if h and h.get_id_cliente() != 0 and h.get_confirmado():
+        if h is None:
+            raise ValueError("Horário não encontrado.")
+
+        if h.get_id_cliente() != 0 and h.get_confirmado():
             raise ValueError("Não é possível excluir horários já agendados por um cliente.")
-        HorarioDAO.excluir(Horario(id, None))
+
+        HorarioDAO.excluir(h)
 
     @staticmethod
     def horario_listar() -> List[Horario]:

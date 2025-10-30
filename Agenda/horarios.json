@@ -1,18 +1,1 @@
-[
-    {
-        "id": 2,
-        "data": "21/10/2025 23:05",
-        "confirmado": false,
-        "id_cliente": 0,
-        "id_servico": 1,
-        "id_profissional": 0
-    },
-    {
-        "id": 3,
-        "data": "21/10/2025 23:40",
-        "confirmado": false,
-        "id_cliente": 0,
-        "id_servico": 1,
-        "id_profissional": 0
-    }
-]
+[]

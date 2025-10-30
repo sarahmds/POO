@@ -1,4 +1,3 @@
-# models/cliente.py
 from typing import Optional, Dict, Any, List
 
 clientes_storage: List[Dict[str, Any]] = []
@@ -22,14 +21,12 @@ class Cliente:
         self.__fone = fone
         self.__senha = senha
 
-    # Getters
     def get_id(self) -> int: return self.__id
     def get_nome(self) -> str: return self.__nome
     def get_email(self) -> str: return self.__email
     def get_fone(self) -> str: return self.__fone
     def get_senha(self) -> str: return self.__senha
 
-    # Setters com validação
     def set_nome(self, nome: str):
         if not nome.strip():
             raise ClienteException("Nome do cliente é obrigatório.")
@@ -48,7 +45,6 @@ class Cliente:
             raise ClienteException("Senha do cliente é obrigatória.")
         self.__senha = senha
 
-    # Serialização
     def to_json(self) -> Dict[str, Any]:
         return {
             "id": self.__id,

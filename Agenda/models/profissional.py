@@ -1,6 +1,6 @@
 from typing import Optional, Dict, Any, List
-
-profissionais_storage: List[Dict[str, Any]] = []
+import json
+from .dao import DAO
 
 class ProfissionalException(Exception):
     """Exceção para erros de validação de Profissional."""
@@ -22,7 +22,7 @@ class Profissional:
         self.__email = email
         self.__senha = senha
 
-    # Getters
+    # ---------- Getters ----------
     def get_id(self): return self.__id
     def get_nome(self): return self.__nome
     def get_especialidade(self): return self.__especialidade
@@ -30,7 +30,9 @@ class Profissional:
     def get_email(self): return self.__email
     def get_senha(self): return self.__senha
 
-    # Setters com validação
+    def set_id(self, id: int):
+        self.__id = id
+
     def set_nome(self, nome: str):
         if not nome.strip():
             raise ProfissionalException("Nome do profissional é obrigatório.")
@@ -66,7 +68,7 @@ class Profissional:
     def from_json(dic: Dict[str, Any]):
         return Profissional(
             dic["id"],
-            dic["nome"],
+            dic.get("nome", ""),
             dic.get("especialidade", ""),
             dic.get("conselho", ""),
             dic.get("email", ""),
@@ -77,40 +79,37 @@ class Profissional:
         return f"ID: {self.__id}, Nome: {self.__nome}, Especialidade: {self.__especialidade}, Conselho: {self.__conselho}, Email: {self.__email}"
 
 
-class ProfissionalDAO:
-    @staticmethod
-    def inserir(p: Profissional):
-        profissionais_storage.append(p.to_json())
+class ProfissionalDAO(DAO):
 
-    @staticmethod
-    def listar() -> List[Profissional]:
-        return [Profissional.from_json(p) for p in profissionais_storage]
+    @classmethod
+    def abrir(cls):
+        cls._DAO__objetos = []
+        try:
+            with open("profissionais.json", "r", encoding="utf-8") as arquivo:
+                lista_dicts = json.load(arquivo)
+                from .profissional import Profissional
+                for dic in lista_dicts:
+                    profissional = Profissional.from_json(dic)
+                    cls._DAO__objetos.append(profissional)
+        except (FileNotFoundError, json.JSONDecodeError):
+            cls._DAO__objetos = []
 
-    @staticmethod
-    def listar_id(id: int) -> Optional[Profissional]:
-        raw_data = next((p for p in profissionais_storage if p["id"] == id), None)
-        return Profissional.from_json(raw_data) if raw_data else None
+    @classmethod
+    def salvar(cls):
+        with open("profissionais.json", "w", encoding="utf-8") as arquivo:
+            json.dump([p.to_json() for p in cls._DAO__objetos], arquivo, ensure_ascii=False, indent=4)
 
-    @staticmethod
-    def atualizar(p: Profissional) -> bool:
-        raw_data = next((pr for pr in profissionais_storage if pr["id"] == p.get_id()), None)
-        if raw_data:
-            raw_data.update(p.to_json())
-            return True
-        return False
-
-    @staticmethod
-    def excluir(p: Profissional) -> bool:
-        global profissionais_storage
-        for i, pr in enumerate(profissionais_storage):
-            if pr["id"] == p.get_id():
-                profissionais_storage.pop(i)
-                return True
-        return False
-
-    @staticmethod
-    def autenticar(email: str, senha: str) -> Optional[Dict[str, Any]]:
-        return next(
-            (p for p in profissionais_storage if p["email"] == email and p["senha"] == senha),
-            None
-        )
+    @classmethod
+    def autenticar(cls, email: str, senha: str) -> Optional[Dict[str, Any]]:
+        """Autentica um profissional pelo email e senha."""
+        cls.abrir()
+        for prof in cls._DAO__objetos:
+            if prof.get_email().lower() == email.lower() and prof.get_senha() == senha:
+                return {
+                    "id": prof.get_id(),
+                    "nome": prof.get_nome(),
+                    "email": prof.get_email(),
+                    "especialidade": prof.get_especialidade(),
+                    "conselho": prof.get_conselho()
+                }
+        return None
