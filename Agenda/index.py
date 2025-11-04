@@ -84,7 +84,8 @@ class IndexUI:
             "Cadastro de Serviços",
             "Cadastro de Horários",
             "Cadastro de Profissionais",
-            "Relatório de Profissionais"
+            "Relatório de Profissionais",
+            "Alterar Minha Senha"  # nova opção
         ])
 
         if op == "Cadastro de Clientes":
@@ -98,6 +99,47 @@ class IndexUI:
         elif op == "Relatório de Profissionais":
             from templates.relatorio_profissionais_UI import RelatorioProfissionaisUI
             RelatorioProfissionaisUI.main()
+        elif op == "Alterar Minha Senha":
+            IndexUI.alterar_senha_admin()
+
+    @staticmethod
+    def alterar_senha_admin():
+        st.header("Alterar Senha do Administrador")
+
+        senha_atual = st.text_input("Senha Atual", type="password")
+        nova_senha = st.text_input("Nova Senha", type="password")
+        confirmar_senha = st.text_input("Confirmar Nova Senha", type="password")
+
+        if st.button("Atualizar Senha"):
+            if not senha_atual or not nova_senha or not confirmar_senha:
+                st.error("Preencha todos os campos.")
+            elif nova_senha != confirmar_senha:
+                st.error("A nova senha e a confirmação não coincidem.")
+            else:
+                admin_id = st.session_state.get("usuario_id")
+                sucesso = IndexUI.atualizar_senha_admin(admin_id, senha_atual, nova_senha)
+                if sucesso:
+                    st.success("Senha atualizada com sucesso!")
+                else:
+                    st.error("Senha atual incorreta ou falha ao atualizar.")
+
+    @staticmethod
+    def atualizar_senha_admin(admin_id, senha_atual, nova_senha):
+        import sqlite3
+        conn = sqlite3.connect("seu_banco.db")
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT senha FROM admins WHERE id = ?", (admin_id,))
+        row = cursor.fetchone()
+
+        if row and row[0] == senha_atual:
+            cursor.execute("UPDATE admins SET senha = ? WHERE id = ?", (nova_senha, admin_id))
+            conn.commit()
+            conn.close()
+            return True
+
+        conn.close()
+        return False
 
     @staticmethod
     def sidebar():
