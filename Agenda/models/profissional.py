@@ -22,7 +22,7 @@ class Profissional:
         self.__email = email
         self.__senha = senha
 
-    # ---------- Getters ----------
+    
     def get_id(self): return self.__id
     def get_nome(self): return self.__nome
     def get_especialidade(self): return self.__especialidade

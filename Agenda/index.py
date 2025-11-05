@@ -85,7 +85,7 @@ class IndexUI:
             "Cadastro de Horários",
             "Cadastro de Profissionais",
             "Relatório de Profissionais",
-            "Alterar Minha Senha"  # nova opção
+            "Alterar Minha Senha"  
         ])
 
         if op == "Cadastro de Clientes":
