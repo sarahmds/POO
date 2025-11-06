@@ -9,6 +9,9 @@ from templates.manterhorarioUI import ManterHorarioUI
 from templates.manterprofissionalUI import ManterProfissionalUI
 from templates.abrir_agendaUI import AbrirAgendaUI
 from templates.visualizar_minha_agenda_UI import VisualizarMinhaAgendaUI
+from templates.perfiladminUI import PerfiladminUI
+from views import View
+
 
 def sair_do_sistema():
     """Limpa dados da sessão e desloga o usuário."""
@@ -81,26 +84,26 @@ class IndexUI:
         """Menu para o administrador."""
         op = st.sidebar.selectbox("Menu", [
             "Cadastro de Clientes",
+            "Cadastro de Profissionais",
             "Cadastro de Serviços",
             "Cadastro de Horários",
-            "Cadastro de Profissionais",
             "Relatório de Profissionais",
-            "Alterar Minha Senha"  
+            "Meus Dados"  
         ])
 
         if op == "Cadastro de Clientes":
             ManterClienteUI.main()
+        elif op == "Cadastro de Profissionais":
+            ManterProfissionalUI.main()
         elif op == "Cadastro de Serviços":
             ManterServicoUI.main()
         elif op == "Cadastro de Horários":
             ManterHorarioUI.main()
-        elif op == "Cadastro de Profissionais":
-            ManterProfissionalUI.main()
         elif op == "Relatório de Profissionais":
             from templates.relatorio_profissionais_UI import RelatorioProfissionaisUI
             RelatorioProfissionaisUI.main()
-        elif op == "Alterar Minha Senha":
-            IndexUI.alterar_senha_admin()
+        elif op == "Meus Dados":
+            PerfiladminUI.main()
 
     @staticmethod
     def alterar_senha_admin():
@@ -122,24 +125,6 @@ class IndexUI:
                     st.success("Senha atualizada com sucesso!")
                 else:
                     st.error("Senha atual incorreta ou falha ao atualizar.")
-
-    @staticmethod
-    def atualizar_senha_admin(admin_id, senha_atual, nova_senha):
-        import sqlite3
-        conn = sqlite3.connect("seu_banco.db")
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT senha FROM admins WHERE id = ?", (admin_id,))
-        row = cursor.fetchone()
-
-        if row and row[0] == senha_atual:
-            cursor.execute("UPDATE admins SET senha = ? WHERE id = ?", (nova_senha, admin_id))
-            conn.commit()
-            conn.close()
-            return True
-
-        conn.close()
-        return False
 
     @staticmethod
     def sidebar():
@@ -168,6 +153,7 @@ class IndexUI:
     def main():
         """Função principal do aplicativo Streamlit."""
         st.title("Sistema de Agendamento")
+        View.cliente_criar_admin()
         IndexUI.sidebar()
 
 

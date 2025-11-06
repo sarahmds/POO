@@ -6,6 +6,11 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 
 class View:
+    @staticmethod
+    def cliente_criar_admin():
+        for c in View.cliente_listar():
+            if c.get_email() == "admin": return
+        View.cliente_inserir("admin", "admin", "fone", "1234")
 
     @staticmethod
     def cliente_inserir(nome, email, fone, senha):
@@ -13,8 +18,8 @@ class View:
             raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
         email_lower = email.lower()
-        if email_lower == "admin":
-            raise ValueError("O e-mail 'admin' é reservado para o administrador.")
+        #if email_lower == "admin":
+            #raise ValueError("O e-mail 'admin' é reservado para o administrador.")
 
         todos_emails = [c.get_email().lower() for c in ClienteDAO.listar()] + \
                        [p.get_email().lower() for p in ProfissionalDAO.listar()]
@@ -29,9 +34,6 @@ class View:
             raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
         email_lower = email.lower()
-        if email_lower == "admin":
-            raise ValueError("O e-mail 'admin' é reservado para o administrador.")
-
         todos_emails = [c.get_email().lower() for c in ClienteDAO.listar() if c.get_id() != id] + \
                        [p.get_email().lower() for p in ProfissionalDAO.listar()]
         if email_lower in todos_emails:
