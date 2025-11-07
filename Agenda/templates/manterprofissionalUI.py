@@ -3,7 +3,8 @@ from views import View
 from models.profissional import Profissional
 
 class ManterProfissionalUI:
-    
+    """Interface de usuário para o CRUD de Profissionais (Admin)."""
+
     @staticmethod
     def cadastrar():
         st.subheader("Cadastrar Novo Profissional")
@@ -11,10 +12,10 @@ class ManterProfissionalUI:
         with st.form("form_profissional_cadastro"):
             nome = st.text_input("Nome")
             especialidade = st.text_input("Especialidade")
-            conselho = st.text_input("Conselho")  
+            conselho = st.text_input("Conselho")
             email = st.text_input("Email (Login)")
             senha = st.text_input("Senha", type="password")
-            
+
             submitted = st.form_submit_button("Cadastrar Profissional")
 
             if submitted:
@@ -22,7 +23,7 @@ class ManterProfissionalUI:
                     if not nome or not email or not senha:
                         raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
-                    View.profissional_inserir(nome, especialidade, conselho, email, senha)  
+                    View.profissional_inserir(nome, especialidade, conselho, email, senha)
                     st.success(f"Profissional '{nome}' cadastrado com sucesso!")
                     st.rerun()
                 except ValueError as ve:
@@ -39,7 +40,7 @@ class ManterProfissionalUI:
                 st.info("Nenhum profissional cadastrado.")
                 return
 
-            opcoes = {f"{p.get_nome()} ({p.get_especialidade()}) - ID: {p.get_id()}": p for p in profissionais}
+            opcoes = {f"{p.get_nome()} ({p.get_especialidade() or 'Sem especialidade'}) - ID: {p.get_id()}": p for p in profissionais}
             selecionado_str = st.selectbox("Selecione o profissional para atualizar", list(opcoes.keys()))
             
             if selecionado_str:
@@ -47,11 +48,11 @@ class ManterProfissionalUI:
                 
                 with st.form("form_profissional_atualizar"):
                     nome = st.text_input("Novo Nome", op.get_nome())
-                    especialidade = st.text_input("Nova Especialidade", op.get_especialidade()) 
-                    conselho = st.text_input("Novo Conselho", op.get_conselho())  
+                    especialidade = st.text_input("Nova Especialidade", op.get_especialidade() or "")
+                    conselho = st.text_input("Novo Conselho", op.get_conselho() or "")
                     email = st.text_input("Novo Email (Login)", op.get_email())
-                    senha = st.text_input("Nova Senha (deixe vazio para manter a atual)", type="password") 
-                    
+                    senha = st.text_input("Nova Senha (deixe vazio para manter a atual)", type="password")
+
                     submitted = st.form_submit_button("Atualizar Profissional")
 
                     if submitted:
@@ -61,6 +62,7 @@ class ManterProfissionalUI:
 
                             senha_final = senha if senha else op.get_senha()
                             View.profissional_atualizar(op.get_id(), nome, especialidade, conselho, email, senha_final)
+
                             st.success(f"Profissional '{nome}' atualizado com sucesso!")
                             st.rerun()
                         except ValueError as ve:
@@ -79,7 +81,7 @@ class ManterProfissionalUI:
                 st.info("Nenhum profissional cadastrado.")
                 return
 
-            opcoes = {f"{p.get_nome()} ({p.get_especialidade()}) - ID: {p.get_id()}": p for p in profissionais}
+            opcoes = {f"{p.get_nome()} ({p.get_especialidade() or 'Sem especialidade'}) - ID: {p.get_id()}": p for p in profissionais}
             selecionado_str = st.selectbox("Selecione o profissional para excluir", list(opcoes.keys()))
 
             if selecionado_str:
@@ -108,10 +110,10 @@ class ManterProfissionalUI:
                 {
                     "ID": p.get_id(),
                     "Nome": p.get_nome(),
-                    "Especialidade": p.get_especialidade(),
-                    "Conselho": p.get_conselho(),  
+                    "Especialidade": p.get_especialidade() or "—",
+                    "Conselho": p.get_conselho() or "—",
                     "Email": p.get_email()
-                } 
+                }
                 for p in profissionais
             ]
             st.dataframe(dados_tabela, use_container_width=True)
@@ -124,9 +126,13 @@ class ManterProfissionalUI:
         try:
             tab1, tab2, tab3, tab4 = st.tabs(["Cadastrar", "Listar", "Atualizar", "Excluir"])
             
-            with tab1: ManterProfissionalUI.cadastrar()
-            with tab2: ManterProfissionalUI.listar()
-            with tab3: ManterProfissionalUI.atualizar()
-            with tab4: ManterProfissionalUI.excluir()
+            with tab1:
+                ManterProfissionalUI.cadastrar()
+            with tab2:
+                ManterProfissionalUI.listar()
+            with tab3:
+                ManterProfissionalUI.atualizar()
+            with tab4:
+                ManterProfissionalUI.excluir()
         except Exception as e:
             st.error(f"Erro ao carregar interface de profissionais: {e}")

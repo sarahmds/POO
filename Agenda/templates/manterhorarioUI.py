@@ -76,7 +76,12 @@ class ManterHorarioUI:
                         servico.get_id(),
                         profissional.get_id()
                     )
-                    st.success("Horário inserido com sucesso!")
+                    st.success(
+                        f"Horário para o cliente '{cliente.get_nome()}', "
+                        f"serviço '{servico.get_descricao()}', "
+                        f"profissional '{profissional.get_nome()}' "
+                        f"em {data_obj.strftime('%d/%m/%Y %H:%M')} cadastrado com sucesso!"
+                    )
                     time.sleep(2)
                     st.rerun()
                 except ValueError:
@@ -124,7 +129,12 @@ class ManterHorarioUI:
                         servico.get_id(),
                         profissional.get_id()
                     )
-                    st.success("Horário atualizado com sucesso!")
+                    st.success(
+                        f"Horário atualizado para o cliente '{cliente.get_nome()}', "
+                        f"serviço '{servico.get_descricao()}', "
+                        f"profissional '{profissional.get_nome()}', "
+                        f"em {data_obj.strftime('%d/%m/%Y %H:%M')} com sucesso!"
+                    )
                     time.sleep(2)
                     st.rerun()
                 except ValueError:
@@ -145,8 +155,17 @@ class ManterHorarioUI:
             op = st.selectbox("Selecione o horário para excluir", horarios, key="excluir_horario")
             if st.button("Excluir", key=f"excluir_btn_{op.get_id()}"):
                 try:
+                    cliente = View.cliente_listar_id(op.get_id_cliente())
+                    servico = View.servico_listar_id(op.get_id_servico())
+                    data_txt = op.get_data().strftime('%d/%m/%Y %H:%M')
+
                     View.horario_excluir(op.get_id())
-                    st.success("Horário excluído com sucesso!")
+
+                    st.success(
+                        f"Horário do cliente '{cliente.get_nome()}', "
+                        f"serviço '{servico.get_descricao()}' "
+                        f"em {data_txt} excluído com sucesso!"
+                    )
                     time.sleep(2)
                     st.rerun()
                 except Exception as e:
