@@ -43,9 +43,7 @@ class LoginUI:
                     "tipo": "admin" if email.lower() == "admin" else "cliente"
                 }
                 salvar_usuario(usuario)
-                st.success(f"Login de Cliente realizado! Bem-vindo(a), {cliente['nome']}")
-                # Atualiza página
-                st.query_params = {"login": "true"}
+                st.rerun()  # 🔁 Atualiza a página automaticamente
                 return
 
             # Profissional
@@ -57,8 +55,7 @@ class LoginUI:
                     "tipo": "profissional"
                 }
                 salvar_usuario(usuario)
-                st.success(f"Login de Profissional realizado! Bem-vindo(a), {prof['nome']}")
-                st.query_params = {"login": "true"}
+                st.rerun()  # 🔁 Atualiza a página automaticamente
                 return
 
             st.error("Credenciais inválidas ou usuário não encontrado.")

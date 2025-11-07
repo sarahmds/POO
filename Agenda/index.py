@@ -23,7 +23,6 @@ class IndexUI:
             IndexUI.menu_visitante()
             return
 
-        st.sidebar.write(f"Bem-vindo(a), {usuario['nome']}")
         tipo = usuario["tipo"]
 
         # Menu baseado no tipo
