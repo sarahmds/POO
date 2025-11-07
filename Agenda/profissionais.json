@@ -2,8 +2,8 @@
     {
         "id": 1,
         "nome": "profissional",
-        "especialidade": "profissional",
-        "conselho": "profissional",
+        "especialidade": "",
+        "conselho": "",
         "email": "profissional",
         "senha": "123"
     }

@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import json
+from datetime import datetime
 from pathlib import Path
+from models.cliente import ClienteDAO
+from models.servico import ServicoDAO
 
 DATA_DIR = Path("data")
 HORARIOS_FILE = DATA_DIR / "horarios.json"
@@ -42,41 +45,54 @@ class ConfirmarServicoUI:
             st.info("Nenhum serviço agendado por clientes para confirmar.")
             return
 
-        # Corrige data que está como string
-        def formatar_data(valor):
+        # Converte coluna "data" de string para datetime
+        df_profissional["data"] = pd.to_datetime(df_profissional["data"], format="%d/%m/%Y %H:%M", errors="coerce")
+        df_profissional = df_profissional.dropna(subset=["data"])
+
+        # Funções para converter IDs em nomes
+        def get_nome_cliente(id_cliente):
+            if not id_cliente:
+                return "-"
             try:
-                return datetime.strptime(valor, "%d/%m/%Y %H:%M")
-            except Exception:
-                return valor
+                c = ClienteDAO.listar_id(int(id_cliente))
+                return c.get_nome() if c else str(id_cliente)
+            except:
+                return str(id_cliente)
 
-        if df_profissional["data"].dtype == object:
-            df_profissional["data"] = df_profissional["data"].apply(formatar_data)
+        def get_nome_servico(id_servico):
+            if not id_servico:
+                return "-"
+            try:
+                s = ServicoDAO.listar_id(int(id_servico))
+                return s.get_descricao() if s else str(id_servico)
+            except:
+                return str(id_servico)
 
+        # Lista de opções para o selectbox
         opcoes_horarios = [
-            f"{int(row['id'])} - {row['data'].strftime('%d/%m/%Y %H:%M')} - {'Confirmado' if row['confirmado'] else 'Pendente'}"
+            f"{int(row['id'])} - {row['data'].strftime('%d/%m/%Y %H:%M')} - {get_nome_cliente(row['cliente'])} - {get_nome_servico(row['serviço'])} - {'Confirmado' if row['confirmado'] else 'Pendente'}"
             for _, row in df_profissional.iterrows()
         ]
 
         horario_escolhido = st.selectbox("Selecione o horário agendado:", opcoes_horarios)
         horario_id = int(horario_escolhido.split(" - ")[0])
 
-        # Lista de clientes já agendados
-        clientes = df_profissional['cliente'].dropna().unique()
-        if len(clientes) > 0:
-            cliente_opcoes = [str(c) for c in clientes]
-            cliente_selecionado = st.selectbox("Cliente", cliente_opcoes)
-        else:
-            st.info("Nenhum cliente agendado.")
-            return
-
         if st.button("Confirmar"):
             idx = agenda[agenda["id"] == horario_id].index
             if not idx.empty:
                 agenda.at[idx[0], "confirmado"] = True
                 salvar_json(HORARIOS_FILE, agenda)
+                st.success("Serviço confirmado!")
 
             # Mostra resumo atualizado
-            df_atualizado = agenda[
-                agenda["profissional"].astype(str) == str(profissional_id)
-            ][["id", "data", "confirmado", "cliente", "serviço"]]
-            st.dataframe(df_atualizado, use_container_width=True)
+            df_atualizado = agenda[agenda['profissional'].astype(str) == str(profissional_id)].copy()
+            df_atualizado["data"] = pd.to_datetime(df_atualizado["data"], format="%d/%m/%Y %H:%M", errors="coerce")
+            df_atualizado["cliente"] = df_atualizado["cliente"].apply(get_nome_cliente)
+            df_atualizado["serviço"] = df_atualizado["serviço"].apply(get_nome_servico)
+            df_atualizado["confirmado"] = df_atualizado["confirmado"].apply(lambda x: "Sim" if x else "Não")
+
+            st.subheader("Horários Atualizados")
+            st.dataframe(
+                df_atualizado[["id", "data", "cliente", "serviço", "confirmado"]],
+                use_container_width=True
+            )

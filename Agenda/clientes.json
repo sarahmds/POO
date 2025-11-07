@@ -3,14 +3,14 @@
         "id": 1,
         "nome": "admin",
         "email": "admin",
-        "fone": "",
+        "fone": "fone",
         "senha": "1234"
     },
     {
         "id": 2,
         "nome": "cliente",
         "email": "cliente",
-        "fone": "99999999",
+        "fone": "99999",
         "senha": "123"
     }
 ]
