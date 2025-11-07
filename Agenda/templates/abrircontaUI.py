@@ -19,7 +19,6 @@ class AbrirContaUI:
                     raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
                 View.cliente_inserir(nome, email, fone, senha)
-                st.success("Conta criada com sucesso! Você já pode logar.")
 
             except ValueError as ve:
                 st.error(f"Erro de validação: {ve}")

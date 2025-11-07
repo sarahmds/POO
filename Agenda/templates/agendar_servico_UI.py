@@ -74,4 +74,3 @@ class AgendarServicoUI:
             agenda.loc[agenda['id'] == idx_global, 'confirmado'] = False
 
             salvar_json(HORARIOS_FILE, agenda)
-            st.success("Serviço agendado com sucesso!")

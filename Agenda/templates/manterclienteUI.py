@@ -22,8 +22,6 @@ class ManterClienteUI:
                         raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
                     View.cliente_inserir(nome, email, fone, senha)
-                    st.success(f"Cliente '{nome}' cadastrado com sucesso!")
-
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")
                 except Exception as e:
@@ -59,7 +57,6 @@ class ManterClienteUI:
                                 raise ValueError("Nome e e-mail são obrigatórios.")
 
                             View.cliente_atualizar(op.get_id(), nome, email, fone, senha_final)
-                            st.success(f"Cliente '{nome}' atualizado com sucesso!")
                             st.rerun()
 
                         except ValueError as ve:
@@ -88,7 +85,6 @@ class ManterClienteUI:
                 if st.button(f"Confirmar Exclusão de {op.get_nome()}"):
                     try:
                         View.cliente_excluir(op.get_id())
-                        st.success(f"Cliente '{op.get_nome()}' excluído com sucesso!")
                         st.rerun()
                     except Exception as e:
                         st.error(f"Erro ao excluir cliente: {e}")

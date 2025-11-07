@@ -80,7 +80,6 @@ class ManterHorarioUI:
                         f"Horário para o cliente '{cliente.get_nome()}', "
                         f"serviço '{servico.get_descricao()}', "
                         f"profissional '{profissional.get_nome()}' "
-                        f"em {data_obj.strftime('%d/%m/%Y %H:%M')} cadastrado com sucesso!"
                     )
                     time.sleep(2)
                     st.rerun()
@@ -133,7 +132,6 @@ class ManterHorarioUI:
                         f"Horário atualizado para o cliente '{cliente.get_nome()}', "
                         f"serviço '{servico.get_descricao()}', "
                         f"profissional '{profissional.get_nome()}', "
-                        f"em {data_obj.strftime('%d/%m/%Y %H:%M')} com sucesso!"
                     )
                     time.sleep(2)
                     st.rerun()
@@ -164,7 +162,6 @@ class ManterHorarioUI:
                     st.success(
                         f"Horário do cliente '{cliente.get_nome()}', "
                         f"serviço '{servico.get_descricao()}' "
-                        f"em {data_txt} excluído com sucesso!"
                     )
                     time.sleep(2)
                     st.rerun()

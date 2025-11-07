@@ -1,25 +1,9 @@
 [
     {
         "id": 1,
-        "nome": "profissional1",
-        "especialidade": "",
-        "conselho": "",
-        "email": "profissional1",
-        "senha": "123"
-    },
-    {
-        "id": 2,
-        "nome": "profissional2",
-        "especialidade": "",
-        "conselho": "",
-        "email": "profissional2",
-        "senha": "123"
-    },
-    {
-        "id": 3,
         "nome": "profissional",
-        "especialidade": "",
-        "conselho": "",
+        "especialidade": "profissional",
+        "conselho": "profissional",
         "email": "profissional",
         "senha": "123"
     }

@@ -44,7 +44,6 @@ class ManterServicoUI:
                     return
                 try:
                     View.servico_inserir(descricao, preco)
-                    st.success(f"Serviço '{descricao}' inserido com sucesso!")
                     time.sleep(1.5)
                     st.rerun()
                 except Exception as e:
@@ -71,7 +70,6 @@ class ManterServicoUI:
                     return
                 try:
                     View.servico_atualizar(op.get_id(), descricao, preco)
-                    st.success(f"Serviço '{descricao}' atualizado com sucesso!")
                     time.sleep(1.5)
                     st.rerun()
                 except Exception as e:
@@ -89,7 +87,6 @@ class ManterServicoUI:
         if st.button(f"Confirmar exclusão de '{op.get_descricao()}'"):
             try:
                 View.servico_excluir(op.get_id())
-                st.success(f"Serviço '{op.get_descricao()}' excluído com sucesso!")
                 time.sleep(1.5)
                 st.rerun()
             except Exception as e:

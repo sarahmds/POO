@@ -24,7 +24,6 @@ class ManterProfissionalUI:
                         raise ValueError("Nome, e-mail e senha são obrigatórios.")
 
                     View.profissional_inserir(nome, especialidade, conselho, email, senha)
-                    st.success(f"Profissional '{nome}' cadastrado com sucesso!")
                     st.rerun()
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")
@@ -63,7 +62,6 @@ class ManterProfissionalUI:
                             senha_final = senha if senha else op.get_senha()
                             View.profissional_atualizar(op.get_id(), nome, especialidade, conselho, email, senha_final)
 
-                            st.success(f"Profissional '{nome}' atualizado com sucesso!")
                             st.rerun()
                         except ValueError as ve:
                             st.error(f"Erro de validação: {ve}")
@@ -90,7 +88,6 @@ class ManterProfissionalUI:
                 if st.button(f"Confirmar Exclusão de {op.get_nome()}"):
                     try:
                         View.profissional_excluir(op.get_id())
-                        st.success(f"Profissional '{op.get_nome()}' excluído com sucesso!")
                         st.rerun()
                     except Exception as e:
                         st.error(f"Erro ao excluir profissional: {e}")

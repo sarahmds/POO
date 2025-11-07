@@ -74,7 +74,6 @@ class ConfirmarServicoUI:
             if not idx.empty:
                 agenda.at[idx[0], "confirmado"] = True
                 salvar_json(HORARIOS_FILE, agenda)
-                st.success("Serviço confirmado com sucesso!")
 
             # Mostra resumo atualizado
             df_atualizado = agenda[

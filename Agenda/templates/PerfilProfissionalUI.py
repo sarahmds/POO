@@ -67,7 +67,6 @@ class PerfilProfissionalUI:
                     with open(USUARIOS_FILE, "w", encoding="utf-8") as f:
                         json.dump([usuario], f, indent=4, ensure_ascii=False)
 
-                    st.success("Profissional atualizado com sucesso!")
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")
                 except Exception as e:

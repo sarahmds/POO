@@ -85,7 +85,6 @@ class AbrirAgendaUI:
                     agenda = pd.concat([agenda, novos_horarios], ignore_index=True)
                     salvar_json(HORARIOS_FILE, agenda)
 
-                    st.success("Horários adicionados com sucesso!")
 
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")
