@@ -1,5 +1,18 @@
 import streamlit as st
+import json
+from pathlib import Path
 from views import View
+
+DATA_DIR = Path("data")
+USUARIOS_FILE = DATA_DIR / "usuario_logado.json"
+
+def carregar_usuario_logado():
+    if not USUARIOS_FILE.exists():
+        return None
+    with open(USUARIOS_FILE, "r", encoding="utf-8") as f:
+        usuarios = json.load(f)
+        return usuarios[0] if usuarios else None
+
 
 class PerfilClienteUI:
 
@@ -8,15 +21,18 @@ class PerfilClienteUI:
         st.header("Meus Dados")
 
         try:
-            if "usuario_id" not in st.session_state or st.session_state.get("usuario_tipo") != "cliente":
-                st.warning("Nenhum usuário cliente logado")
+            DATA_DIR.mkdir(exist_ok=True)
+            usuario = carregar_usuario_logado()
+
+            if not usuario or usuario.get("tipo") != "cliente":
+                st.warning("Nenhum usuário cliente logado.")
                 return
 
-            usuario_id = st.session_state["usuario_id"]
+            usuario_id = usuario["id"]
 
             cliente = View.cliente_listar_id(usuario_id)
             if not cliente:
-                st.warning("Dados do usuário não encontrados")
+                st.warning("Dados do usuário não encontrados.")
                 return
 
             nome_atual = cliente.get_nome()
@@ -36,7 +52,12 @@ class PerfilClienteUI:
                         raise ValueError("Nome e E-mail são obrigatórios.")
 
                     View.cliente_atualizar(usuario_id, nome, email, fone, senha_para_atualizar)
-                    st.session_state["usuario_nome"] = nome
+
+                    # Atualiza o nome do usuário logado no JSON
+                    usuario["nome"] = nome
+                    with open(USUARIOS_FILE, "w", encoding="utf-8") as f:
+                        json.dump([usuario], f, indent=4, ensure_ascii=False)
+
                     st.success("Cliente atualizado com sucesso!")
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")

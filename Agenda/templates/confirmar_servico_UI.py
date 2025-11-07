@@ -1,5 +1,21 @@
 import streamlit as st
 import pandas as pd
+import json
+from pathlib import Path
+
+DATA_DIR = Path("data")
+HORARIOS_FILE = DATA_DIR / "horarios.json"
+
+def carregar_json(caminho):
+    if not caminho.exists():
+        return pd.DataFrame(columns=['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional'])
+    with open(caminho, "r", encoding="utf-8") as f:
+        return pd.DataFrame(json.load(f))
+
+def salvar_json(caminho, df):
+    with open(caminho, "w", encoding="utf-8") as f:
+        json.dump(df.to_dict(orient="records"), f, indent=4, ensure_ascii=False)
+
 
 class ConfirmarServicoUI:
 
@@ -9,32 +25,43 @@ class ConfirmarServicoUI:
 
         st.title("Confirmar Serviço")
 
-        if 'agenda' not in st.session_state or st.session_state.agenda.empty:
+        DATA_DIR.mkdir(exist_ok=True)
+        agenda = carregar_json(HORARIOS_FILE)
+
+        if agenda.empty:
             st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
             return
 
-        df_profissional = st.session_state.agenda[
-            (st.session_state.agenda['profissional'] == profissional_id) &
-            (st.session_state.agenda['cliente'].notna())
+        # Filtra horários com cliente marcado para o profissional logado
+        df_profissional = agenda[
+            (agenda['profissional'].astype(str) == str(profissional_id)) &
+            (agenda['cliente'].notna())
         ].copy()
 
         if df_profissional.empty:
             st.info("Nenhum serviço agendado por clientes para confirmar.")
             return
 
+        # Corrige data que está como string
+        def formatar_data(valor):
+            try:
+                return datetime.strptime(valor, "%d/%m/%Y %H:%M")
+            except Exception:
+                return valor
+
+        if df_profissional["data"].dtype == object:
+            df_profissional["data"] = df_profissional["data"].apply(formatar_data)
+
         opcoes_horarios = [
-            f"{row['id']} - {row['data'].strftime('%d/%m/%Y %H:%M')} - {row['confirmado']}"
+            f"{int(row['id'])} - {row['data'].strftime('%d/%m/%Y %H:%M')} - {'Confirmado' if row['confirmado'] else 'Pendente'}"
             for _, row in df_profissional.iterrows()
         ]
 
-        horario_escolhido = st.selectbox("Informe o horário", opcoes_horarios)
-
+        horario_escolhido = st.selectbox("Selecione o horário agendado:", opcoes_horarios)
         horario_id = int(horario_escolhido.split(" - ")[0])
 
-        horario = df_profissional[df_profissional["id"] == horario_id].iloc[0]
-
-        clientes = st.session_state.agenda['cliente'].dropna().unique()
-
+        # Lista de clientes já agendados
+        clientes = df_profissional['cliente'].dropna().unique()
         if len(clientes) > 0:
             cliente_opcoes = [str(c) for c in clientes]
             cliente_selecionado = st.selectbox("Cliente", cliente_opcoes)
@@ -43,14 +70,14 @@ class ConfirmarServicoUI:
             return
 
         if st.button("Confirmar"):
-            idx = st.session_state.agenda[
-                st.session_state.agenda["id"] == horario_id
-            ].index[0]
+            idx = agenda[agenda["id"] == horario_id].index
+            if not idx.empty:
+                agenda.at[idx[0], "confirmado"] = True
+                salvar_json(HORARIOS_FILE, agenda)
+                st.success("Serviço confirmado com sucesso!")
 
-            st.session_state.agenda.at[idx, "confirmado"] = True
-
-            st.success("Serviço confirmado com sucesso!")
-
-            st.dataframe(st.session_state.agenda[
-                st.session_state.agenda["profissional"] == profissional_id
-            ][["id", "data", "confirmado", "cliente", "serviço"]])
+            # Mostra resumo atualizado
+            df_atualizado = agenda[
+                agenda["profissional"].astype(str) == str(profissional_id)
+            ][["id", "data", "confirmado", "cliente", "serviço"]]
+            st.dataframe(df_atualizado, use_container_width=True)

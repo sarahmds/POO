@@ -1,30 +1,49 @@
+# index.py
 import streamlit as st
-from templates.loginUI import LoginUI
+from templates.loginUI import LoginUI, carregar_usuario, logout
 from templates.abrircontaUI import AbrirContaUI
 from templates.perfilclienteUI import PerfilClienteUI
 from templates.PerfilProfissionalUI import PerfilProfissionalUI
 from templates.manterclienteUI import ManterClienteUI
+from templates.manterprofissionalUI import ManterProfissionalUI
 from templates.manterservicoUI import ManterServicoUI
 from templates.manterhorarioUI import ManterHorarioUI
-from templates.manterprofissionalUI import ManterProfissionalUI
 from templates.abrir_agendaUI import AbrirAgendaUI
 from templates.visualizar_minha_agenda_UI import VisualizarMinhaAgendaUI
 from templates.perfiladminUI import PerfiladminUI
 from views import View
 
-
-def sair_do_sistema():
-    """Limpa dados da sessão e desloga o usuário."""
-    if st.sidebar.button("Sair"):
-        for k in ["usuario_id", "usuario_nome", "usuario_tipo"]:
-            st.session_state.pop(k, None)
-        st.session_state["sair"] = True
-
 class IndexUI:
 
     @staticmethod
+    def sidebar():
+        """Renderiza o menu lateral baseado no usuário logado."""
+        usuario = carregar_usuario()
+        if usuario is None:
+            IndexUI.menu_visitante()
+            return
+
+        st.sidebar.write(f"Bem-vindo(a), {usuario['nome']}")
+        tipo = usuario["tipo"]
+
+        # Menu baseado no tipo
+        if tipo == "admin":
+            IndexUI.menu_admin()
+        elif tipo == "profissional":
+            IndexUI.menu_profissional(usuario["id"])
+        else:
+            IndexUI.menu_cliente(usuario["id"])
+
+        # Botão Sair no final
+        if st.sidebar.button("Sair"):
+            logout()
+            # Força atualização da página
+            st.query_params = {}
+            return
+
+    @staticmethod
     def menu_visitante():
-        """Menu para usuários não logados."""
+        """Menu para visitantes (não logados)."""
         op = st.sidebar.selectbox("Menu", ["Entrar no Sistema", "Abrir Conta"])
         if op == "Entrar no Sistema":
             LoginUI.main()
@@ -32,16 +51,13 @@ class IndexUI:
             AbrirContaUI.main()
 
     @staticmethod
-    def menu_cliente():
-        """Menu para clientes logados."""
+    def menu_cliente(cliente_id: int):
         op = st.sidebar.selectbox("Menu", [
             "Meus Dados",
             "Agendar Serviço",
             "Meus Serviços",
             "Relatório de Profissionais"
         ])
-        cliente_id = st.session_state.get("usuario_id")
-
         if op == "Meus Dados":
             PerfilClienteUI.main()
         elif op == "Agendar Serviço":
@@ -55,8 +71,7 @@ class IndexUI:
             RelatorioProfissionaisUI.main()
 
     @staticmethod
-    def menu_profissional():
-        """Menu para profissionais logados."""
+    def menu_profissional(profissional_id: int):
         op = st.sidebar.selectbox("Menu", [
             "Meus Dados",
             "Abrir Minha Agenda",
@@ -64,8 +79,6 @@ class IndexUI:
             "Confirmar Serviço",
             "Relatório de Profissionais"
         ])
-        profissional_id = st.session_state.get("usuario_id")
-
         if op == "Meus Dados":
             PerfilProfissionalUI.main()
         elif op == "Abrir Minha Agenda":
@@ -81,16 +94,14 @@ class IndexUI:
 
     @staticmethod
     def menu_admin():
-        """Menu para o administrador."""
         op = st.sidebar.selectbox("Menu", [
             "Cadastro de Clientes",
             "Cadastro de Profissionais",
             "Cadastro de Serviços",
             "Cadastro de Horários",
             "Relatório de Profissionais",
-            "Meus Dados"  
+            "Meus Dados"
         ])
-
         if op == "Cadastro de Clientes":
             ManterClienteUI.main()
         elif op == "Cadastro de Profissionais":
@@ -106,53 +117,9 @@ class IndexUI:
             PerfiladminUI.main()
 
     @staticmethod
-    def alterar_senha_admin():
-        st.header("Alterar Senha do Administrador")
-
-        senha_atual = st.text_input("Senha Atual", type="password")
-        nova_senha = st.text_input("Nova Senha", type="password")
-        confirmar_senha = st.text_input("Confirmar Nova Senha", type="password")
-
-        if st.button("Atualizar Senha"):
-            if not senha_atual or not nova_senha or not confirmar_senha:
-                st.error("Preencha todos os campos.")
-            elif nova_senha != confirmar_senha:
-                st.error("A nova senha e a confirmação não coincidem.")
-            else:
-                admin_id = st.session_state.get("usuario_id")
-                sucesso = IndexUI.atualizar_senha_admin(admin_id, senha_atual, nova_senha)
-                if sucesso:
-                    st.success("Senha atualizada com sucesso!")
-                else:
-                    st.error("Senha atual incorreta ou falha ao atualizar.")
-
-    @staticmethod
-    def sidebar():
-        """Barra lateral e redirecionamento baseado no estado da sessão."""
-        if st.session_state.get("sair", False):
-            st.session_state["sair"] = False
-            st.rerun()
-            return
-
-        if "usuario_id" not in st.session_state:
-            IndexUI.menu_visitante()
-        else:
-            tipo_usuario = st.session_state.get("usuario_tipo", "")
-            st.sidebar.write(f"Bem-vindo(a), {st.session_state.get('usuario_nome', '')}")
-
-            if tipo_usuario == "admin":
-                IndexUI.menu_admin()
-            elif tipo_usuario == "profissional":
-                IndexUI.menu_profissional()
-            else:
-                IndexUI.menu_cliente()
-
-            sair_do_sistema()
-
-    @staticmethod
     def main():
-        """Função principal do aplicativo Streamlit."""
         st.title("Sistema de Agendamento")
+        # Garante que o admin exista
         View.cliente_criar_admin()
         IndexUI.sidebar()
 

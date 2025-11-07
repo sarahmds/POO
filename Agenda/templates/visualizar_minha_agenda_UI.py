@@ -1,5 +1,11 @@
 import streamlit as st
 import pandas as pd
+import json
+from pathlib import Path
+
+DATA_DIR = Path("data")
+AGENDA_FILE = DATA_DIR / "agenda.json"
+
 
 class VisualizarMinhaAgendaUI:
 
@@ -9,30 +15,48 @@ class VisualizarMinhaAgendaUI:
 
         st.title("Minha Agenda")
 
-        if 'agenda' not in st.session_state or st.session_state.agenda.empty:
-            st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
-            return
+        try:
+            # Verifica se o arquivo existe
+            if not AGENDA_FILE.exists():
+                st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
+                return
 
-        df_agenda = st.session_state.agenda[
-            st.session_state.agenda['profissional'] == profissional_id
-        ].copy()
+            # Carrega os dados da agenda
+            with open(AGENDA_FILE, "r", encoding="utf-8") as f:
+                agenda_data = json.load(f)
 
-        if df_agenda.empty:
-            st.info("Nenhum horário cadastrado para este profissional.")
-            return
+            if not agenda_data:
+                st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
+                return
 
-        df_agenda = df_agenda[['id', 'data', 'confirmado', 'cliente', 'serviço']]
+            df_agenda = pd.DataFrame(agenda_data)
+            if df_agenda.empty:
+                st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
+                return
 
-        st.data_editor(
-            df_agenda,
-            hide_index=True,
-            disabled=True,
-            column_config={
-                "id": st.column_config.Column("id", width="small"),
-                "data": st.column_config.Column("data", width="medium"),
-                "confirmado": st.column_config.CheckboxColumn("confirmado", default=False),
-                "cliente": st.column_config.Column("cliente", width="medium"),
-                "serviço": st.column_config.Column("serviço", width="medium"),
-            },
-            use_container_width=True,
-        )
+            # Filtra horários do profissional logado
+            df_prof = df_agenda[df_agenda["profissional"] == profissional_id].copy()
+
+            if df_prof.empty:
+                st.info("Nenhum horário cadastrado para este profissional.")
+                return
+
+            # Seleciona e exibe colunas principais
+            df_prof = df_prof[["id", "data", "confirmado", "cliente", "serviço"]]
+
+            st.data_editor(
+                df_prof,
+                hide_index=True,
+                disabled=True,
+                column_config={
+                    "id": st.column_config.Column("ID", width="small"),
+                    "data": st.column_config.Column("Data", width="medium"),
+                    "confirmado": st.column_config.CheckboxColumn("Confirmado", default=False),
+                    "cliente": st.column_config.Column("Cliente", width="medium"),
+                    "serviço": st.column_config.Column("Serviço", width="medium"),
+                },
+                use_container_width=True,
+            )
+
+        except Exception as e:
+            st.error(f"Erro ao carregar agenda: {e}")
