@@ -1,169 +1,130 @@
 import streamlit as st
-import pandas as pd
 from views import View
-from datetime import datetime
-import time
+from models.cliente import Cliente
 
-class ManterHorarioUI:
-    """Interface de usuário para o CRUD (Manutenção) de Horários (acesso Admin)."""
-
-    def main():
-        st.header("Cadastro de Horários")
-        try:
-            tab1, tab2, tab3, tab4 = st.tabs(["Listar", "Inserir", "Atualizar", "Excluir"])
-            with tab1: ManterHorarioUI.listar()
-            with tab2: ManterHorarioUI.inserir()
-            with tab3: ManterHorarioUI.atualizar()
-            with tab4: ManterHorarioUI.excluir()
-        except Exception as e:
-            st.error(f"Erro ao carregar interface de horários: {e}")
-
-    def listar():
-        try:
-            horarios = View.horario_listar()
-            if not horarios:
-                st.info("Nenhum horário cadastrado.")
-                return
-
-            dados = []
-            for obj in horarios:
-                try:
-                    cliente = View.cliente_listar_id(obj.get_id_cliente())
-                    servico = View.servico_listar_id(obj.get_id_servico())
-                    profissional = View.profissional_listar_id(obj.get_id_profissional())
-                except Exception:
-                    cliente = servico = profissional = None
-
-                dados.append({
-                    "ID": obj.get_id(),
-                    "Data": obj.get_data().strftime("%d/%m/%Y %H:%M"),
-                    "Confirmado": "Sim" if obj.get_confirmado() else "Não",
-                    "Cliente": cliente.get_nome() if cliente else "N/A",
-                    "Serviço": servico.get_descricao() if servico else "N/A",
-                    "Profissional": profissional.get_nome() if profissional else "N/A"
-                })
-            st.dataframe(pd.DataFrame(dados), use_container_width=True)
-        except Exception as e:
-            st.error(f"Erro ao listar horários: {e}")
-
-    def inserir():
-        try:
-            clientes = View.cliente_listar()
-            servicos = View.servico_listar()
-            profissionais = View.profissional_listar()
-
-            if not clientes or not servicos or not profissionais:
-                st.warning("É necessário cadastrar Cliente, Serviço e Profissional antes de inserir um horário.")
-                return
-
-            data = st.text_input(
-                "Informe a data e horário do serviço (dd/mm/aaaa HH:MM)",
-                datetime.now().strftime("%d/%m/%Y %H:%M"),
-                key="inserir_data"
-            )
-            confirmado = st.checkbox("Confirmado", key="inserir_confirmado")
-            cliente = st.selectbox("Informe o cliente", clientes, key="inserir_cliente")
-            servico = st.selectbox("Informe o serviço", servicos, key="inserir_servico")
-            profissional = st.selectbox("Informe o profissional", profissionais, key="inserir_profissional")
-
-            if st.button("Inserir", key="inserir_btn"):
-                try:
-                    data_obj = datetime.strptime(data, "%d/%m/%Y %H:%M")
-                    View.horario_inserir(
-                        data_obj,
-                        confirmado,
-                        cliente.get_id(),
-                        servico.get_id(),
-                        profissional.get_id()
-                    )
-                    st.success(
-                        f"Horário para o cliente '{cliente.get_nome()}', "
-                        f"serviço '{servico.get_descricao()}', "
-                        f"profissional '{profissional.get_nome()}' "
-                        f"em {data_obj.strftime('%d/%m/%Y %H:%M')} cadastrado com sucesso!"
-                    )
-                    time.sleep(2)
-                    st.rerun()
-                except ValueError:
-                    st.error("Formato de data e horário inválido. Use dd/mm/aaaa HH:MM.")
-                except Exception as e:
-                    st.error(f"Erro ao inserir horário: {e}")
-        except Exception as e:
-            st.error(f"Erro ao carregar dados para inserção: {e}")
-
-    def atualizar():
-        try:
-            horarios = View.horario_listar()
-            if not horarios:
-                st.info("Nenhum horário cadastrado.")
-                return
-
-            clientes = View.cliente_listar()
-            servicos = View.servico_listar()
-            profissionais = View.profissional_listar()
+class ManterClienteUI:
+    
+    @staticmethod
+    def cadastrar():
+        st.subheader("Cadastrar Novo Cliente")
+        
+        with st.form("form_cliente_cadastro"):
+            nome = st.text_input("Nome")
+            email = st.text_input("Email (Login)")
+            fone = st.text_input("Telefone")
+            senha = st.text_input("Senha", type="password") 
             
-            op = st.selectbox("Selecione o horário para atualizar", horarios, key="atualizar_horario")
+            submitted = st.form_submit_button("Cadastrar Cliente")
 
-            cliente_index = next((i for i, c in enumerate(clientes) if c.get_id() == op.get_id_cliente()), 0)
-            servico_index = next((i for i, s in enumerate(servicos) if s.get_id() == op.get_id_servico()), 0)
-            profissional_index = next((i for i, p in enumerate(profissionais) if p.get_id() == op.get_id_profissional()), 0)
-
-            data = st.text_input(
-                "Nova data e horário (dd/mm/aaaa HH:MM)", 
-                op.get_data().strftime("%d/%m/%Y %H:%M"), 
-                key=f"data_{op.get_id()}"
-            )
-            confirmado = st.checkbox("Confirmado", value=op.get_confirmado(), key=f"confirmado_{op.get_id()}")
-            cliente = st.selectbox("Novo cliente", clientes, index=cliente_index, key=f"cliente_{op.get_id()}")
-            servico = st.selectbox("Novo serviço", servicos, index=servico_index, key=f"servico_{op.get_id()}")
-            profissional = st.selectbox("Novo profissional", profissionais, index=profissional_index, key=f"profissional_{op.get_id()}")
-
-            if st.button("Atualizar", key=f"atualizar_btn_{op.get_id()}"):
+            if submitted:
                 try:
-                    data_obj = datetime.strptime(data, "%d/%m/%Y %H:%M")
-                    View.horario_atualizar(
-                        op.get_id(),
-                        data_obj,
-                        confirmado,
-                        cliente.get_id(),
-                        servico.get_id(),
-                        profissional.get_id()
-                    )
-                    st.success(
-                        f"Horário atualizado com sucesso para o cliente '{cliente.get_nome()}', "
-                        f"serviço '{servico.get_descricao()}', "
-                        f"profissional '{profissional.get_nome()}', "
-                        f"data {data_obj.strftime('%d/%m/%Y %H:%M')}."
-                    )
-                    time.sleep(2)
-                    st.rerun()
-                except ValueError:
-                    st.error("Formato de data e horário inválido. Use dd/mm/aaaa HH:MM.")
+                    if not nome or not email or not senha:
+                        raise ValueError("Nome, e-mail e senha são obrigatórios.")
+
+                    View.cliente_inserir(nome, email, fone, senha)
+                    st.success(f"Cliente '{nome}' cadastrado com sucesso!")
+
+                except ValueError as ve:
+                    st.error(f"Erro de validação: {ve}")
                 except Exception as e:
-                    st.error(f"Erro ao atualizar horário: {e}")
+                    st.error(f"Erro inesperado ao cadastrar cliente: {e}")
 
-        except Exception as e:
-            st.error(f"Erro ao carregar dados para atualização: {e}")
-
-    def excluir():
+    @staticmethod
+    def atualizar():
+        st.subheader("Atualizar Cliente")
         try:
-            horarios = View.horario_listar()
-            if not horarios:
-                st.info("Nenhum horário cadastrado.")
+            clientes = View.cliente_listar()
+            if not clientes:
+                st.info("Nenhum cliente cadastrado.")
                 return
 
-            op = st.selectbox("Selecione o horário para excluir", horarios, key="excluir_horario")
-            if st.button("Excluir", key=f"excluir_btn_{op.get_id()}"):
-                try:
-                    View.horario_excluir(op.get_id())
-                    st.success(
-                        f"Horário do cliente '{View.cliente_listar_id(op.get_id_cliente()).get_nome()}' "
-                        f"para o serviço '{View.servico_listar_id(op.get_id_servico()).get_descricao()}' "
-                        f"em {op.get_data().strftime('%d/%m/%Y %H:%M')} excluído com sucesso!"
-                    )
-                    time.sleep(2)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Erro ao excluir horário: {e}")
+            opcoes = {f"{c.get_nome()} ({c.get_email()}) - ID: {c.get_id()}": c for c in clientes}
+            selecionado_str = st.selectbox("Selecione o cliente para atualizar", list(opcoes.keys()))
+
+            if selecionado_str:
+                op: Cliente = opcoes[selecionado_str]
+
+                with st.form("form_cliente_atualizar"):
+                    nome = st.text_input("Novo Nome", op.get_nome())
+                    email = st.text_input("Novo Email (Login)", op.get_email())
+                    fone = st.text_input("Novo Telefone", op.get_fone())
+                    senha = st.text_input("Nova Senha (deixe vazio para manter a atual)", type="password") 
+                    
+                    submitted = st.form_submit_button("Atualizar Cliente")
+
+                    if submitted:
+                        senha_final = senha if senha else op.get_senha()
+                        try:
+                            if not nome or not email:
+                                raise ValueError("Nome e e-mail são obrigatórios.")
+
+                            View.cliente_atualizar(op.get_id(), nome, email, fone, senha_final)
+                            st.success(f"Cliente '{nome}' atualizado com sucesso!")
+                            st.rerun()
+
+                        except ValueError as ve:
+                            st.error(f"Erro de validação: {ve}")
+                        except Exception as e:
+                            st.error(f"Erro inesperado ao atualizar cliente: {e}")
+
         except Exception as e:
-            st.error(f"Erro ao carregar dados para exclusão: {e}")
+            st.error(f"Erro ao carregar clientes: {e}")
+
+    @staticmethod
+    def excluir():
+        st.subheader("Excluir Cliente")
+        try:
+            clientes = View.cliente_listar()
+            if not clientes:
+                st.info("Nenhum cliente cadastrado.")
+                return
+
+            opcoes = {f"{c.get_nome()} ({c.get_email()}) - ID: {c.get_id()}": c for c in clientes}
+            selecionado_str = st.selectbox("Selecione o cliente para excluir", list(opcoes.keys()))
+
+            if selecionado_str:
+                op: Cliente = opcoes[selecionado_str]
+                
+                if st.button(f"Confirmar Exclusão de {op.get_nome()}"):
+                    try:
+                        View.cliente_excluir(op.get_id())
+                        st.success(f"Cliente '{op.get_nome()}' excluído com sucesso!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Erro ao excluir cliente: {e}")
+
+        except Exception as e:
+            st.error(f"Erro ao carregar lista de clientes: {e}")
+
+    @staticmethod
+    def listar():
+        st.subheader("Lista de Clientes")
+        try:
+            clientes = View.cliente_listar()
+            if not clientes:
+                st.info("Nenhum cliente cadastrado.")
+                return
+
+            dados_tabela = [
+                {"ID": c.get_id(), "Nome": c.get_nome(), "Email": c.get_email(), "Telefone": c.get_fone()}
+                for c in clientes
+            ]
+            st.dataframe(dados_tabela, use_container_width=True)
+
+        except Exception as e:
+            st.error(f"Erro ao listar clientes: {e}")
+
+    @staticmethod
+    def main():
+        st.title("Gerenciamento de Clientes")
+        
+        try:
+            tab1, tab2, tab3, tab4 = st.tabs(["Cadastrar", "Listar", "Atualizar", "Excluir"])
+            
+            with tab1: ManterClienteUI.cadastrar()
+            with tab2: ManterClienteUI.listar()
+            with tab3: ManterClienteUI.atualizar()
+            with tab4: ManterClienteUI.excluir()
+
+        except Exception as e:
+            st.error(f"Ocorreu um erro ao carregar a interface: {e}")
