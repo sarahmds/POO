@@ -4,11 +4,6 @@ from pathlib import Path
 
 
 ARQUIVO_CLIENTES = Path("clientes.json")
-
-
-
-
-
 def carregar_dados() -> List[Dict[str, Any]]:
     """Carrega os dados do arquivo JSON (se existir)."""
     if ARQUIVO_CLIENTES.exists():
@@ -18,25 +13,13 @@ def carregar_dados() -> List[Dict[str, Any]]:
             except json.JSONDecodeError:
                 return []
     return []
-
-
 def salvar_dados(dados: List[Dict[str, Any]]):
     """Salva os dados no arquivo JSON."""
     with open(ARQUIVO_CLIENTES, "w", encoding="utf-8") as f:
         json.dump(dados, f, ensure_ascii=False, indent=4)
-
-
-
-
-
 class ClienteException(Exception):
     """Exceção personalizada para erros de Cliente."""
     pass
-
-
-
-
-
 class Cliente:
     def __init__(self, id: int, nome: str, email: str, fone: str, senha: str):
         if not nome.strip():
@@ -52,7 +35,6 @@ class Cliente:
         self.__fone = fone
         self.__senha = senha
 
-    
     def get_id(self) -> int:
         return self.__id
 
@@ -67,8 +49,7 @@ class Cliente:
 
     def get_senha(self) -> str:
         return self.__senha
-
-    
+ 
     def set_nome(self, nome: str):
         if not nome.strip():
             raise ClienteException("Nome do cliente é obrigatório.")
@@ -109,10 +90,6 @@ class Cliente:
 
     def __str__(self):
         return f"ID: {self.__id}, Nome: {self.__nome}, Email: {self.__email}, Fone: {self.__fone}"
-
-
-
-
 
 class ClienteDAO:
     """Classe DAO persistente em arquivo JSON."""

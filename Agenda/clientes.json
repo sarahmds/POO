@@ -10,7 +10,7 @@
         "id": 2,
         "nome": "cliente",
         "email": "cliente",
-        "fone": "99999",
+        "fone": "99999999",
         "senha": "123"
     }
 ]

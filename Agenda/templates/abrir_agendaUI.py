@@ -7,8 +7,8 @@ from models.profissional import ProfissionalDAO, Profissional
 from models.cliente import ClienteDAO
 from models.servico import ServicoDAO
 
-DATA_DIR = Path("data")
-HORARIOS_FILE = DATA_DIR / "horarios.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
+ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
 
 
 def carregar_json(caminho):
@@ -16,11 +16,16 @@ def carregar_json(caminho):
     if not caminho.exists():
         return pd.DataFrame(columns=['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional'])
     with open(caminho, "r", encoding="utf-8") as f:
-        return pd.DataFrame(json.load(f))
+        try:
+            data = json.load(f)
+            return pd.DataFrame(data)
+        except json.JSONDecodeError:
+            return pd.DataFrame(columns=['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional'])
 
 
 def salvar_json(caminho, df):
     """Salva DataFrame como JSON."""
+    caminho.parent.mkdir(parents=True, exist_ok=True)  # garante que a pasta Agenda existe
     with open(caminho, "w", encoding="utf-8") as f:
         json.dump(df.to_dict(orient="records"), f, indent=4, ensure_ascii=False)
 
@@ -50,8 +55,8 @@ class AbrirAgendaUI:
             st.error("Profissional inválido ou não encontrado.")
             return
 
-        DATA_DIR.mkdir(exist_ok=True)
-        agenda = carregar_json(HORARIOS_FILE)
+        # Carrega agenda do arquivo
+        agenda = carregar_json(ARQUIVO_HORARIOS)
         next_id = (agenda["id"].max() + 1) if not agenda.empty else 1
 
         st.title("Abrir Agenda")
@@ -86,7 +91,7 @@ class AbrirAgendaUI:
 
                     novos_horarios = pd.DataFrame(linhas_novas)
                     agenda = pd.concat([agenda, novos_horarios], ignore_index=True)
-                    salvar_json(HORARIOS_FILE, agenda)
+                    salvar_json(ARQUIVO_HORARIOS, agenda)
                     st.success("Agenda aberta com sucesso!")
 
                 except ValueError as ve:

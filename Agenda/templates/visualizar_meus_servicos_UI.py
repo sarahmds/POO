@@ -5,9 +5,8 @@ from pathlib import Path
 from models.profissional import ProfissionalDAO
 from models.servico import ServicoDAO
 
-DATA_DIR = Path("data")
-AGENDA_FILE = DATA_DIR / "horarios.json"
-
+BASE_DIR = Path(__file__).resolve().parent.parent
+ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
 
 class VisualizarMeusServicosUI:
 
@@ -18,11 +17,12 @@ class VisualizarMeusServicosUI:
         st.title("Meus Serviços")
 
         try:
-            if not AGENDA_FILE.exists():
+            if not ARQUIVO_HORARIOS.exists():
                 st.warning("Nenhum serviço encontrado. Nenhum horário foi agendado ainda.")
                 return
 
-            with open(AGENDA_FILE, "r", encoding="utf-8") as f:
+            # Carrega o arquivo JSON
+            with open(ARQUIVO_HORARIOS, "r", encoding="utf-8") as f:
                 agenda_data = json.load(f)
 
             if not agenda_data:
@@ -34,11 +34,13 @@ class VisualizarMeusServicosUI:
                 st.info("Nenhum serviço encontrado.")
                 return
 
-            # Filtro por cliente (aceita int ou string)
-            df_cliente = df[
-                (df["cliente"] == cliente_id) |
-                (df["cliente"].astype(str) == str(cliente_id))
-            ].copy()
+            # Garante que a coluna de cliente exista
+            if "id_cliente" not in df.columns:
+                st.error("Coluna 'id_cliente' não encontrada no arquivo de horários.")
+                return
+
+            # Filtra apenas os serviços do cliente logado
+            df_cliente = df[df["id_cliente"] == cliente_id].copy()
 
             if df_cliente.empty:
                 st.info("Você ainda não possui serviços agendados.")
@@ -48,35 +50,31 @@ class VisualizarMeusServicosUI:
             def get_nome_profissional(id_):
                 try:
                     p = ProfissionalDAO.listar_id(int(id_))
-                    return p.get_nome() if p else str(id_)
+                    return p.get_nome() if p else f"Profissional {id_}"
                 except:
-                    return str(id_)
+                    return f"Profissional {id_}"
 
             def get_nome_servico(id_):
                 try:
                     s = ServicoDAO.listar_id(int(id_))
-                    return s.get_descricao() if s else str(id_)
+                    return s.get_descricao() if s else f"Serviço {id_}"
                 except:
-                    return str(id_)
+                    return f"Serviço {id_}"
 
-            df_cliente["profissional"] = df_cliente["profissional"].apply(get_nome_profissional)
-            df_cliente["serviço"] = df_cliente["serviço"].apply(get_nome_servico)
+            # Cria colunas legíveis
+            df_cliente["Profissional"] = df_cliente["id_profissional"].apply(get_nome_profissional)
+            df_cliente["Serviço"] = df_cliente["id_servico"].apply(get_nome_servico)
+            df_cliente["Confirmado"] = df_cliente["confirmado"].apply(lambda x: "Sim" if x else "Não")
 
-            # Selecionar colunas relevantes
-            colunas = ["id", "data", "confirmado", "serviço", "profissional"]
-            df_cliente = df_cliente[colunas]
+            # Seleciona colunas relevantes
+            df_view = df_cliente[["id", "data", "Serviço", "Profissional", "Confirmado"]].copy()
+            df_view = df_view.rename(columns={"id": "ID", "data": "Data e Hora"})
 
+            # Exibe tabela
             st.data_editor(
-                df_cliente,
+                df_view,
                 hide_index=True,
                 disabled=True,
-                column_config={
-                    "id": st.column_config.Column("ID"),
-                    "data": st.column_config.Column("Data"),
-                    "confirmado": st.column_config.CheckboxColumn("Confirmado", default=False),
-                    "serviço": st.column_config.Column("Serviço"),
-                    "profissional": st.column_config.Column("Profissional"),
-                },
                 use_container_width=True,
             )
 

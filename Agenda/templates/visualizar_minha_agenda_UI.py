@@ -6,8 +6,8 @@ from models.cliente import ClienteDAO
 from models.servico import ServicoDAO
 from models.profissional import ProfissionalDAO
 
-DATA_DIR = Path("data")
-AGENDA_FILE = DATA_DIR / "horarios.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
+ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
 
 class VisualizarMinhaAgendaUI:
 
@@ -15,13 +15,13 @@ class VisualizarMinhaAgendaUI:
     def main(profissional_id: int):
         st.title("Minha Agenda")
 
-        if not AGENDA_FILE.exists():
+        if not ARQUIVO_HORARIOS.exists():
             st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
             return
 
         # Carrega JSON
         try:
-            with open(AGENDA_FILE, "r", encoding="utf-8") as f:
+            with open(ARQUIVO_HORARIOS, "r", encoding="utf-8") as f:
                 agenda_data = json.load(f)
         except Exception as e:
             st.error(f"Erro ao ler arquivo de agenda: {e}")
@@ -36,24 +36,27 @@ class VisualizarMinhaAgendaUI:
             st.info("Nenhum horário cadastrado ainda.")
             return
 
-        # Confirma que as colunas existem
-        col_cliente = "cliente" if "cliente" in df.columns else None
-        col_servico = "serviço" if "serviço" in df.columns else None
-        col_profissional = "profissional" if "profissional" in df.columns else None
+        # Normaliza nomes de colunas
+        df.rename(columns={
+            "id_cliente": "cliente",
+            "id_servico": "serviço",
+            "id_profissional": "profissional"
+        }, inplace=True)
 
-        if not col_profissional:
+        # Confirma que as colunas essenciais existem
+        if "profissional" not in df.columns:
             st.error("Coluna do profissional não encontrada na agenda.")
             return
 
         # Filtra pelo profissional logado
-        df_prof = df[df[col_profissional] == profissional_id].copy()
+        df_prof = df[df["profissional"] == profissional_id].copy()
         if df_prof.empty:
             st.info("Nenhum horário cadastrado para este profissional.")
             return
 
         # Funções para converter IDs em nomes
         def get_nome_cliente(val):
-            if not val:
+            if not val or pd.isna(val):
                 return "-"
             try:
                 c = ClienteDAO.listar_id(int(val))
@@ -62,7 +65,7 @@ class VisualizarMinhaAgendaUI:
                 return str(val)
 
         def get_nome_servico(val):
-            if not val:
+            if not val or pd.isna(val):
                 return "-"
             try:
                 s = ServicoDAO.listar_id(int(val))
@@ -71,7 +74,7 @@ class VisualizarMinhaAgendaUI:
                 return str(val)
 
         def get_nome_profissional(val):
-            if not val:
+            if not val or pd.isna(val):
                 return "-"
             try:
                 p = ProfissionalDAO.listar_id(int(val))
@@ -80,9 +83,9 @@ class VisualizarMinhaAgendaUI:
                 return str(val)
 
         # Aplica conversões
-        df_prof["Cliente"] = df_prof[col_cliente].apply(get_nome_cliente) if col_cliente else "-"
-        df_prof["Serviço"] = df_prof[col_servico].apply(get_nome_servico) if col_servico else "-"
-        df_prof["Profissional"] = df_prof[col_profissional].apply(get_nome_profissional)
+        df_prof["Cliente"] = df_prof["cliente"].apply(get_nome_cliente)
+        df_prof["Serviço"] = df_prof["serviço"].apply(get_nome_servico)
+        df_prof["Profissional"] = df_prof["profissional"].apply(get_nome_profissional)
         df_prof["Confirmado"] = df_prof["confirmado"].apply(lambda x: "Sim" if x else "Não")
 
         # Seleciona colunas para exibir

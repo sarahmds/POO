@@ -6,14 +6,16 @@ from pathlib import Path
 from models.cliente import ClienteDAO
 from models.servico import ServicoDAO
 
-DATA_DIR = Path("data")
-HORARIOS_FILE = DATA_DIR / "horarios.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
+ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
+
 
 def carregar_json(caminho):
     if not caminho.exists():
         return pd.DataFrame(columns=['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional'])
     with open(caminho, "r", encoding="utf-8") as f:
         return pd.DataFrame(json.load(f))
+
 
 def salvar_json(caminho, df):
     with open(caminho, "w", encoding="utf-8") as f:
@@ -28,8 +30,7 @@ class ConfirmarServicoUI:
 
         st.title("Confirmar Serviço")
 
-        DATA_DIR.mkdir(exist_ok=True)
-        agenda = carregar_json(HORARIOS_FILE)
+        agenda = carregar_json(ARQUIVO_HORARIOS)
 
         if agenda.empty:
             st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
@@ -81,7 +82,7 @@ class ConfirmarServicoUI:
             idx = agenda[agenda["id"] == horario_id].index
             if not idx.empty:
                 agenda.at[idx[0], "confirmado"] = True
-                salvar_json(HORARIOS_FILE, agenda)
+                salvar_json(ARQUIVO_HORARIOS, agenda)
                 st.success("Serviço confirmado!")
 
             # Mostra resumo atualizado

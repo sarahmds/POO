@@ -3,13 +3,13 @@ import json
 from pathlib import Path
 from views import View
 
-DATA_DIR = Path("data")
-USUARIOS_FILE = DATA_DIR / "usuario_logado.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
+USUARIO_FILE = BASE_DIR / "usuario_logado.json"
 
 def carregar_usuario_logado():
-    if not USUARIOS_FILE.exists():
+    if not USUARIO_FILE.exists():
         return None
-    with open(USUARIOS_FILE, "r", encoding="utf-8") as f:
+    with open(USUARIO_FILE, "r", encoding="utf-8") as f:
         usuarios = json.load(f)
         return usuarios[0] if usuarios else None
 
@@ -21,7 +21,6 @@ class PerfiladminUI:
         st.header("Meus Dados")
 
         try:
-            DATA_DIR.mkdir(exist_ok=True)
             usuario = carregar_usuario_logado()
 
             if not usuario or usuario.get("tipo") != "admin":
@@ -54,8 +53,10 @@ class PerfiladminUI:
 
                     # Atualiza o JSON de login com o novo nome
                     usuario["nome"] = nome
-                    with open(USUARIOS_FILE, "w", encoding="utf-8") as f:
+                    with open(USUARIO_FILE, "w", encoding="utf-8") as f:
                         json.dump([usuario], f, indent=4, ensure_ascii=False)
+
+                    st.success("Dados atualizados com sucesso!")
 
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")
