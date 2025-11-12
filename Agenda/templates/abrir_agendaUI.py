@@ -1,37 +1,7 @@
 import streamlit as st
-import pandas as pd
-import json
 from datetime import datetime, timedelta
-from pathlib import Path
 from models.profissional import ProfissionalDAO, Profissional
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
-
-
-def carregar_json(caminho):
-    """Carrega JSON e converte para DataFrame."""
-    colunas = ['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional_id', 'profissional_nome']
-    if not caminho.exists():
-        return pd.DataFrame(columns=colunas)
-    with open(caminho, "r", encoding="utf-8") as f:
-        try:
-            data = json.load(f)
-            df = pd.DataFrame(data)
-            for c in colunas:
-                if c not in df.columns:
-                    df[c] = None
-            return df[colunas]
-        except json.JSONDecodeError:
-            return pd.DataFrame(columns=colunas)
-
-
-def salvar_json(caminho, df):
-    """Salva DataFrame como JSON."""
-    caminho.parent.mkdir(parents=True, exist_ok=True)
-    with open(caminho, "w", encoding="utf-8") as f:
-        json.dump(df.to_dict(orient="records"), f, indent=4, ensure_ascii=False)
-
+from views import View
 
 class AbrirAgendaUI:
 
@@ -57,9 +27,6 @@ class AbrirAgendaUI:
             st.error("Profissional inválido ou não encontrado.")
             return
 
-        agenda = carregar_json(ARQUIVO_HORARIOS)
-        next_id = (agenda["id"].max() + 1) if not agenda.empty else 1
-
         st.title("Abrir Agenda")
 
         with st.form("abrir_agenda_form"):
@@ -73,28 +40,25 @@ class AbrirAgendaUI:
                 try:
                     dt_inicio = datetime.combine(data, hora_inicial)
                     dt_fim = datetime.combine(data, hora_final)
+
                     if dt_fim <= dt_inicio:
                         raise ValueError("O horário final deve ser posterior ao inicial.")
 
                     delta = timedelta(minutes=intervalo)
-                    linhas_novas = []
+                    count = 0
+
                     while dt_inicio <= dt_fim:
-                        linhas_novas.append({
-                            "id": int(next_id),
-                            "data": dt_inicio.strftime("%d/%m/%Y %H:%M"),
-                            "confirmado": False,
-                            "cliente": None,
-                            "serviço": None,
-                            "profissional_id": int(profissional_id),
-                            "profissional_nome": profissional_nome
-                        })
-                        next_id += 1
+                        View.horario_inserir(
+                            data=dt_inicio,  # datetime real
+                            confirmado=False,
+                            id_cliente=None,
+                            id_servico=None,
+                            id_profissional=profissional_id
+                        )
+                        count += 1
                         dt_inicio += delta
 
-                    novos_horarios = pd.DataFrame(linhas_novas)
-                    agenda = pd.concat([agenda, novos_horarios], ignore_index=True)
-                    salvar_json(ARQUIVO_HORARIOS, agenda)
-                    st.success("Agenda aberta com sucesso!")
+                    st.success(f"{count} horários adicionados à agenda de {profissional_nome}!")
 
                 except ValueError as ve:
                     st.error(f"Erro de validação: {ve}")

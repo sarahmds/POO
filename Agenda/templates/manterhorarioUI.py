@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-from views import View
 from datetime import datetime
 import time
+from views import View
 from templates.loginUI import carregar_usuario
+
 
 class ManterHorarioUI:
     """CRUD de Horários (Admin, Profissional e Cliente)"""
@@ -23,6 +24,9 @@ class ManterHorarioUI:
         except Exception as e:
             st.error(f"Erro ao carregar interface de horários: {e}")
 
+    # ===============================
+    # LISTAR
+    # ===============================
     @staticmethod
     def listar():
         try:
@@ -34,14 +38,21 @@ class ManterHorarioUI:
             horarios = View.horario_listar()
             dados = []
 
-            for obj in horarios:
-                id_cliente = int(obj.get_id_cliente()) if obj.get_id_cliente() else None
-                id_servico = int(obj.get_id_servico()) if obj.get_id_servico() else None
-                id_profissional = int(obj.get_id_profissional()) if obj.get_id_profissional() else None
+            def safe_int(val):
+                try:
+                    return int(val)
+                except (TypeError, ValueError):
+                    return None
 
-                # Buscar objetos no banco
+            for obj in horarios:
+                id_cliente = safe_int(obj.get_id_cliente())
+                id_servico = safe_int(obj.get_id_servico())
+                id_profissional = safe_int(obj.get_id_profissional())
+
+                # Buscar objetos completos via View (sem ler JSON diretamente)
                 cliente_obj = View.cliente_listar_id(id_cliente) if id_cliente else None
                 servico_obj = View.servico_listar_id(id_servico) if id_servico else None
+                profissional_obj = View.profissional_listar_id(id_profissional) if id_profissional else None
 
                 # FILTRO POR USUÁRIO
                 if usuario["tipo"] == "cliente" and id_cliente != usuario["id"]:
@@ -55,7 +66,7 @@ class ManterHorarioUI:
                     "Confirmado": "Sim" if obj.get_confirmado() else "Não",
                     "Cliente": cliente_obj.get_nome() if cliente_obj else "—",
                     "Serviço": servico_obj.get_descricao() if servico_obj else "—",
-                    "Profissional": getattr(obj, "profissional_nome", "—")
+                    "Profissional": profissional_obj.get_nome() if profissional_obj else "—"
                 })
 
             if not dados:
@@ -68,6 +79,9 @@ class ManterHorarioUI:
         except Exception as e:
             st.error(f"Erro ao listar horários: {e}")
 
+    # ===============================
+    # INSERIR
+    # ===============================
     @staticmethod
     def inserir():
         try:
@@ -85,9 +99,9 @@ class ManterHorarioUI:
                 key="inserir_data"
             )
             confirmado = st.checkbox("Confirmado", key="inserir_confirmado")
-            cliente = st.selectbox("Cliente", clientes, key="inserir_cliente")
-            servico = st.selectbox("Serviço", servicos, key="inserir_servico")
-            profissional = st.selectbox("Profissional", profissionais, key="inserir_profissional")
+            cliente = st.selectbox("Cliente", clientes, format_func=lambda c: c.get_nome())
+            servico = st.selectbox("Serviço", servicos, format_func=lambda s: s.get_descricao())
+            profissional = st.selectbox("Profissional", profissionais, format_func=lambda p: p.get_nome())
 
             if st.button("Inserir", key="inserir_btn"):
                 try:
@@ -111,6 +125,9 @@ class ManterHorarioUI:
         except Exception as e:
             st.error(f"Erro ao carregar dados: {e}")
 
+    # ===============================
+    # ATUALIZAR
+    # ===============================
     @staticmethod
     def atualizar():
         try:
@@ -120,7 +137,7 @@ class ManterHorarioUI:
                 return
 
             if usuario["tipo"] == "cliente":
-                st.warning("Clientes não podem atualizar horários pelo painel. Use sua área de cliente.")
+                st.warning("Clientes não podem atualizar horários pelo painel.")
                 return
 
             horarios = View.horario_listar()
@@ -151,9 +168,9 @@ class ManterHorarioUI:
                 key=f"data_{op.get_id()}"
             )
             confirmado = st.checkbox("Confirmado", value=op.get_confirmado(), key=f"confirmado_{op.get_id()}")
-            cliente = st.selectbox("Novo cliente", clientes, index=cliente_index, key=f"cliente_{op.get_id()}")
-            servico = st.selectbox("Novo serviço", servicos, index=servico_index, key=f"servico_{op.get_id()}")
-            profissional = st.selectbox("Novo profissional", profissionais, index=profissional_index, key=f"profissional_{op.get_id()}")
+            cliente = st.selectbox("Novo cliente", clientes, index=cliente_index, format_func=lambda c: c.get_nome())
+            servico = st.selectbox("Novo serviço", servicos, index=servico_index, format_func=lambda s: s.get_descricao())
+            profissional = st.selectbox("Novo profissional", profissionais, index=profissional_index, format_func=lambda p: p.get_nome())
 
             if st.button("Atualizar", key=f"atualizar_btn_{op.get_id()}"):
                 try:
@@ -176,6 +193,9 @@ class ManterHorarioUI:
         except Exception as e:
             st.error(f"Erro ao carregar dados para atualização: {e}")
 
+    # ===============================
+    # EXCLUIR
+    # ===============================
     @staticmethod
     def excluir():
         try:
@@ -199,14 +219,16 @@ class ManterHorarioUI:
                 horarios,
                 format_func=lambda x: f"{x.get_data().strftime('%d/%m/%Y %H:%M')} - {x.get_id()}"
             )
+
             if st.button("Excluir", key=f"excluir_btn_{op.get_id()}"):
                 try:
                     cliente = View.cliente_listar_id(op.get_id_cliente()) if op.get_id_cliente() else None
                     servico = View.servico_listar_id(op.get_id_servico()) if op.get_id_servico() else None
+                    profissional = View.profissional_listar_id(op.get_id_profissional()) if op.get_id_profissional() else None
 
                     nome_cliente = cliente.get_nome() if cliente else "—"
                     desc_servico = servico.get_descricao() if servico else "—"
-                    nome_profissional = getattr(op, "profissional_nome", "—")
+                    nome_profissional = profissional.get_nome() if profissional else "—"
 
                     View.horario_excluir(op.get_id())
                     st.success(

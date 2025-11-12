@@ -10,7 +10,7 @@ from templates.manterservicoUI import ManterServicoUI
 from templates.manterhorarioUI import ManterHorarioUI
 from templates.abrir_agendaUI import AbrirAgendaUI
 from templates.visualizar_minha_agenda_UI import VisualizarMinhaAgendaUI
-from templates.perfiladminUI import PerfiladminUI
+from templates.perfiladminUI import PerfilAdminUI
 from views import View
 
 class IndexUI:
@@ -110,7 +110,7 @@ class IndexUI:
             from templates.relatorio_profissionais_UI import RelatorioProfissionaisUI
             RelatorioProfissionaisUI.main()
         elif op == "Meus Dados":
-            PerfiladminUI.main()
+            PerfilAdminUI.main()
 
     @staticmethod
     def main():

@@ -17,7 +17,7 @@
         "id": 3,
         "nome": "sarah",
         "email": "sarah@.com",
-        "fone": "",
+        "fone": "11111111",
         "senha": "123"
     },
     {
@@ -33,5 +33,19 @@
         "email": "maria@.com",
         "fone": "84988887777",
         "senha": "456"
+    },
+    {
+        "id": 6,
+        "nome": "amanda",
+        "email": "amanda@.com",
+        "fone": "",
+        "senha": "123"
+    },
+    {
+        "id": 7,
+        "nome": "Administrador",
+        "email": "admin@admin.com",
+        "fone": "(00) 00000-0000",
+        "senha": "admin"
     }
 ]
