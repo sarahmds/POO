@@ -1,0 +1,65 @@
+[
+    {
+        "id": 1,
+        "data": "12/11/2025 09:00",
+        "confirmado": true,
+        "id_cliente": 3,
+        "id_servico": 1,
+        "id_profissional": 1,
+        "profissional_nome": "Ricardo"
+    },
+    {
+        "id": 2,
+        "data": "12/11/2025 09:30",
+        "confirmado": false,
+        "id_cliente": 3,
+        "id_servico": 1,
+        "id_profissional": 1,
+        "profissional_nome": "Ricardo"
+    },
+    {
+        "id": 3,
+        "data": "12/11/2025 10:00",
+        "confirmado": false,
+        "id_cliente": 0,
+        "id_servico": 0,
+        "id_profissional": 0,
+        "profissional_nome": "Ricardo"
+    },
+    {
+        "id": 4,
+        "data": "12/11/2025 10:30",
+        "confirmado": false,
+        "id_cliente": 0,
+        "id_servico": 0,
+        "id_profissional": 0,
+        "profissional_nome": "Ricardo"
+    },
+    {
+        "id": 5,
+        "data": "12/11/2025 11:00",
+        "confirmado": false,
+        "id_cliente": 0,
+        "id_servico": 0,
+        "id_profissional": 0,
+        "profissional_nome": "Ricardo"
+    },
+    {
+        "id": 6,
+        "data": "12/11/2025 11:30",
+        "confirmado": false,
+        "id_cliente": 0,
+        "id_servico": 0,
+        "id_profissional": 0,
+        "profissional_nome": "Ricardo"
+    },
+    {
+        "id": 7,
+        "data": "12/11/2025 12:00",
+        "confirmado": false,
+        "id_cliente": 0,
+        "id_servico": 0,
+        "id_profissional": 0,
+        "profissional_nome": "Ricardo"
+    }
+]

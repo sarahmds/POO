@@ -4,8 +4,6 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from models.profissional import ProfissionalDAO, Profissional
-from models.cliente import ClienteDAO
-from models.servico import ServicoDAO
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
@@ -13,19 +11,24 @@ ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
 
 def carregar_json(caminho):
     """Carrega JSON e converte para DataFrame."""
+    colunas = ['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional_id', 'profissional_nome']
     if not caminho.exists():
-        return pd.DataFrame(columns=['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional'])
+        return pd.DataFrame(columns=colunas)
     with open(caminho, "r", encoding="utf-8") as f:
         try:
             data = json.load(f)
-            return pd.DataFrame(data)
+            df = pd.DataFrame(data)
+            for c in colunas:
+                if c not in df.columns:
+                    df[c] = None
+            return df[colunas]
         except json.JSONDecodeError:
-            return pd.DataFrame(columns=['id', 'data', 'confirmado', 'cliente', 'serviço', 'profissional'])
+            return pd.DataFrame(columns=colunas)
 
 
 def salvar_json(caminho, df):
     """Salva DataFrame como JSON."""
-    caminho.parent.mkdir(parents=True, exist_ok=True)  # garante que a pasta Agenda existe
+    caminho.parent.mkdir(parents=True, exist_ok=True)
     with open(caminho, "w", encoding="utf-8") as f:
         json.dump(df.to_dict(orient="records"), f, indent=4, ensure_ascii=False)
 
@@ -36,7 +39,6 @@ class AbrirAgendaUI:
     def main(profissional_info):
         """Interface para o profissional abrir novos horários na agenda."""
 
-        # Garante que temos o ID e nome do profissional
         profissional_id = None
         profissional_nome = None
         try:
@@ -55,7 +57,6 @@ class AbrirAgendaUI:
             st.error("Profissional inválido ou não encontrado.")
             return
 
-        # Carrega agenda do arquivo
         agenda = carregar_json(ARQUIVO_HORARIOS)
         next_id = (agenda["id"].max() + 1) if not agenda.empty else 1
 
@@ -84,7 +85,8 @@ class AbrirAgendaUI:
                             "confirmado": False,
                             "cliente": None,
                             "serviço": None,
-                            "profissional": int(profissional_id)
+                            "profissional_id": int(profissional_id),
+                            "profissional_nome": profissional_nome
                         })
                         next_id += 1
                         dt_inicio += delta
@@ -98,47 +100,3 @@ class AbrirAgendaUI:
                     st.error(f"Erro de validação: {ve}")
                 except Exception as e:
                     st.error(f"Erro ao criar horários: {e}")
-
-        # Funções para converter IDs em nomes
-        def _garante_nome_profissional(val):
-            try:
-                p = ProfissionalDAO.listar_id(int(val))
-                return p.get_nome() if p else str(val)
-            except:
-                return str(val)
-
-        def _garante_nome_cliente(val):
-            try:
-                if val is None:
-                    return ""
-                c = ClienteDAO.listar_id(int(val))
-                return c.get_nome() if c else str(val)
-            except:
-                return str(val)
-
-        def _garante_nome_servico(val):
-            try:
-                if val is None:
-                    return ""
-                s = ServicoDAO.listar_id(int(val))
-                return s.get_descricao() if s else str(val)
-            except:
-                return str(val)
-
-        # Aplica conversões para exibição
-        agenda_view = agenda.copy()
-        if "profissional" in agenda_view.columns:
-            agenda_view["profissional"] = agenda_view["profissional"].apply(_garante_nome_profissional)
-        if "cliente" in agenda_view.columns:
-            agenda_view["cliente"] = agenda_view["cliente"].apply(_garante_nome_cliente)
-        if "serviço" in agenda_view.columns:
-            agenda_view["serviço"] = agenda_view["serviço"].apply(_garante_nome_servico)
-
-        st.subheader("Horários Cadastrados")
-        if not agenda_view.empty:
-            st.dataframe(
-                agenda_view[["id", "data", "confirmado", "cliente", "serviço", "profissional"]],
-                use_container_width=True
-            )
-        else:
-            st.info("Nenhum horário aberto ainda.")

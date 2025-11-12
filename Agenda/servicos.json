@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "descricao": "Elaboração de projetos estruturais e acompanhamento de obras",
+        "preco": 2500.0
+    },
+    {
+        "id": 2,
+        "descricao": "Consulta cardiológica e avaliação de saúde do coração",
+        "preco": 350.0
+    },
+    {
+        "id": 3,
+        "descricao": "Assessoria jurídica e representação em processos civis",
+        "preco": 500.0
+    },
+    {
+        "id": 4,
+        "descricao": "Atendimento de enfermagem domiciliar e aplicação de medicações",
+        "preco": 200.0
+    },
+    {
+        "id": 5,
+        "descricao": "Sessão de psicoterapia individual",
+        "preco": 180.0
+    }
+]

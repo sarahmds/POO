@@ -12,14 +12,13 @@ ARQUIVO_HORARIOS = BASE_DIR / "horarios.json"
 class VisualizarMinhaAgendaUI:
 
     @staticmethod
-    def main(profissional_id: int):
+    def main(profissional_identifier):
         st.title("Minha Agenda")
 
         if not ARQUIVO_HORARIOS.exists():
             st.warning("Nenhum horário encontrado. Abra sua agenda primeiro.")
             return
 
-        # Carrega JSON
         try:
             with open(ARQUIVO_HORARIOS, "r", encoding="utf-8") as f:
                 agenda_data = json.load(f)
@@ -36,25 +35,39 @@ class VisualizarMinhaAgendaUI:
             st.info("Nenhum horário cadastrado ainda.")
             return
 
-        # Normaliza nomes de colunas
-        df.rename(columns={
-            "id_cliente": "cliente",
-            "id_servico": "serviço",
-            "id_profissional": "profissional"
-        }, inplace=True)
+        # --- Normaliza colunas ---
+        df.columns = [c.lower().strip() for c in df.columns]
 
-        # Confirma que as colunas essenciais existem
-        if "profissional" not in df.columns:
-            st.error("Coluna do profissional não encontrada na agenda.")
-            return
+        # Renomeia colunas para padronizar
+        if "id_profissional" in df.columns:
+            df = df.rename(columns={"id_profissional": "profissional_id"})
+        if "id_cliente" in df.columns:
+            df = df.rename(columns={"id_cliente": "cliente"})
+        if "id_servico" in df.columns:
+            df = df.rename(columns={"id_servico": "serviço"})
+        if "profissional_nome" not in df.columns:
+            df["profissional_nome"] = ""
 
-        # Filtra pelo profissional logado
-        df_prof = df[df["profissional"] == profissional_id].copy()
+        # --- Preenche profissional_nome a partir do ID ---
+        if "profissional_id" in df.columns:
+            for i, row in df.iterrows():
+                if row["profissional_id"]:  # se tem ID válido
+                    p = ProfissionalDAO.listar_id(row["profissional_id"])
+                    if p:
+                        df.at[i, "profissional_nome"] = p.get_nome()
+
+        # --- Filtra pelo profissional ---
+        if isinstance(profissional_identifier, int):
+            df_prof = df[df["profissional_id"] == profissional_identifier] if "profissional_id" in df.columns else pd.DataFrame()
+        else:
+            nome = str(profissional_identifier).strip().lower()
+            df_prof = df[df["profissional_nome"].str.strip().str.lower() == nome]
+
         if df_prof.empty:
             st.info("Nenhum horário cadastrado para este profissional.")
             return
 
-        # Funções para converter IDs em nomes
+        # --- Conversores para nomes ---
         def get_nome_cliente(val):
             if not val or pd.isna(val):
                 return "-"
@@ -73,23 +86,16 @@ class VisualizarMinhaAgendaUI:
             except:
                 return str(val)
 
-        def get_nome_profissional(val):
-            if not val or pd.isna(val):
-                return "-"
-            try:
-                p = ProfissionalDAO.listar_id(int(val))
-                return p.get_nome() if p else str(val)
-            except:
-                return str(val)
+        df_prof["Cliente"] = df_prof["cliente"].apply(get_nome_cliente) if "cliente" in df_prof.columns else "-"
+        df_prof["Serviço"] = df_prof["serviço"].apply(get_nome_servico) if "serviço" in df_prof.columns else "-"
+        df_prof["Profissional"] = df_prof["profissional_nome"].apply(lambda x: x.title() if x.strip() else "-")
+        df_prof["Confirmado"] = df_prof["confirmado"].apply(lambda x: "Sim" if x else "Não") if "confirmado" in df_prof.columns else "-"
 
-        # Aplica conversões
-        df_prof["Cliente"] = df_prof["cliente"].apply(get_nome_cliente)
-        df_prof["Serviço"] = df_prof["serviço"].apply(get_nome_servico)
-        df_prof["Profissional"] = df_prof["profissional"].apply(get_nome_profissional)
-        df_prof["Confirmado"] = df_prof["confirmado"].apply(lambda x: "Sim" if x else "Não")
-
-        # Seleciona colunas para exibir
-        df_view = df_prof[["data", "Cliente", "Serviço", "Confirmado"]].copy()
-        df_view = df_view.rename(columns={"data": "Data e Hora"})
+        # --- Monta DataFrame final ---
+        if "data" in df_prof.columns:
+            df_view = df_prof[["data", "Cliente", "Serviço", "Confirmado"]].copy()
+            df_view = df_view.rename(columns={"data": "Data e Hora"})
+        else:
+            df_view = df_prof[["Cliente", "Serviço", "Confirmado", "Profissional"]].copy()
 
         st.dataframe(df_view, use_container_width=True)

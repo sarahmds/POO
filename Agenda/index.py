@@ -25,7 +25,6 @@ class IndexUI:
 
         tipo = usuario["tipo"]
 
-        # Menu baseado no tipo
         if tipo == "admin":
             IndexUI.menu_admin()
         elif tipo == "profissional":
@@ -33,10 +32,8 @@ class IndexUI:
         else:
             IndexUI.menu_cliente(usuario["id"])
 
-        # Botão Sair no final
         if st.sidebar.button("Sair"):
             logout()
-            # Força atualização da página
             st.query_params = {}
             return
 
@@ -118,7 +115,6 @@ class IndexUI:
     @staticmethod
     def main():
         st.title("Sistema de Agendamento")
-        # Garante que o admin exista
         View.cliente_criar_admin()
         IndexUI.sidebar()
 

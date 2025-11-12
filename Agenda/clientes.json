@@ -8,9 +8,30 @@
     },
     {
         "id": 2,
-        "nome": "cliente",
-        "email": "cliente",
-        "fone": "99999999",
+        "nome": "lidiane",
+        "email": "lidiane@.com",
+        "fone": "",
         "senha": "123"
+    },
+    {
+        "id": 3,
+        "nome": "sarah",
+        "email": "sarah@.com",
+        "fone": "",
+        "senha": "123"
+    },
+    {
+        "id": 4,
+        "nome": "joão",
+        "email": "joao@.com",
+        "fone": "84999990000",
+        "senha": "321"
+    },
+    {
+        "id": 5,
+        "nome": "maria",
+        "email": "maria@.com",
+        "fone": "84988887777",
+        "senha": "456"
     }
 ]

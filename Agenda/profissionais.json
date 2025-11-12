@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "nome": "Ricardo",
+        "especialidade": "Engenharia Civil",
+        "conselho": "CREA",
+        "email": "ricardo@.com",
+        "senha": "123"
+    },
+    {
+        "id": 2,
+        "nome": "Mariana",
+        "especialidade": "Medicina (Cardiologia)",
+        "conselho": "CFM",
+        "email": "mariana@.com",
+        "senha": "123"
+    },
+    {
+        "id": 3,
+        "nome": "Paulo",
+        "especialidade": "Direito",
+        "conselho": "OAB",
+        "email": "paulo@.com",
+        "senha": "123"
+    },
+    {
+        "id": 4,
+        "nome": "Fernanda",
+        "especialidade": "Enfermagem",
+        "conselho": "COFEN",
+        "email": "fernanda@.com",
+        "senha": "123"
+    },
+    {
+        "id": 5,
+        "nome": "Lucas",
+        "especialidade": "Psicologia",
+        "conselho": "CFP",
+        "email": "lucas@.com",
+        "senha": "123"
+    }
+]
